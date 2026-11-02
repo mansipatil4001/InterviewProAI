@@ -1,0 +1,2596 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>InterviewProAI — Interview Coach</title>
+<style>
+:root{font-family:Inter,"Segoe UI",Arial,sans-serif;color:#20243a;background:#f8f9fc;font-synthesis:none;text-rendering:optimizeLegibility;--primary:#6c63ff;--primary-dark:#574ee7;--ink:#20243a;--muted:#777e90;--line:#e9ebf2;--surface:#fff;--soft:#f4f3ff}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:92px}
+body{margin:0;min-height:100vh;background:#f8f9fc}
+button,input,textarea,select{font:inherit}
+.app-shell{display:none;min-height:100vh}
+body.authenticated .app-shell{display:block}
+#authLoading{display:grid;min-height:100vh;place-items:center;padding:24px;color:var(--muted);font-size:14px;text-align:center}
+body.authenticated #authLoading{display:none}
+.sidebar{position:fixed;inset:0 auto 0 0;z-index:5;display:flex;width:248px;flex-direction:column;overflow-y:auto;padding:27px 18px 20px;background:#fff;border-right:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;margin:0 10px 38px;color:var(--ink);font-size:19px;font-weight:800;letter-spacing:-.7px;text-decoration:none}
+.brand-mark{display:grid;width:35px;height:35px;place-items:center;border-radius:11px;background:var(--primary);color:white;font-size:18px;box-shadow:0 5px 12px #6c63ff40}
+.brand span{color:var(--primary)}
+.nav-label{margin:0 12px 10px;color:#a0a5b3;font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase}
+.nav-group{margin-bottom:20px}
+.sidebar-nav{display:grid;gap:6px}
+.sidebar-nav a{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;color:#707789;font-size:13px;font-weight:650;text-decoration:none;transition:background .18s,color .18s}
+.sidebar-nav a:hover,.sidebar-nav a.active{background:var(--soft);color:var(--primary-dark)}
+.nav-icon{display:inline-grid;width:19px;place-items:center;font-size:16px}
+.sidebar-footer{position:sticky;bottom:0;z-index:1;display:grid;flex:0 0 auto;gap:10px;margin-top:auto;background:inherit}
+.sidebar-user{padding:0 4px;color:#777e90;font-size:11px;overflow-wrap:anywhere}
+.sidebar-user strong{color:var(--ink);font-size:12px}
+.sidebar-logout{width:100%;margin-top:0}
+.sidebar-logout:focus-visible,.sidebar-nav a:focus-visible,.btn:focus-visible{outline:3px solid #aaa4ff;outline-offset:2px}
+.sidebar-note{margin-top:0;padding:14px;border:1px solid #eeeaff;border-radius:13px;background:#faf9ff;color:#777e90;font-size:11px;line-height:1.55}
+.sidebar-note strong{display:block;margin-bottom:4px;color:var(--ink);font-size:12px}
+.workspace{min-height:100vh;margin-left:248px}
+.topbar{position:sticky;top:0;z-index:4;display:flex;min-height:70px;align-items:center;justify-content:space-between;padding:0 clamp(20px,4vw,54px);border-bottom:1px solid var(--line);background:#ffffffed;backdrop-filter:blur(12px)}
+.topbar-title{color:#555c70;font-size:13px;font-weight:650}
+.topbar-actions{display:flex;align-items:center;gap:12px}
+.auth-links{display:flex;align-items:center;gap:8px}
+.auth-links a{padding:9px 12px;border:1px solid var(--line);border-radius:9px;color:var(--primary-dark);font-size:11px;font-weight:750;text-decoration:none}
+.auth-links a.primary-link{border-color:var(--primary);background:var(--primary);color:#fff}
+.account-card{margin:0 0 20px;padding:18px 20px;border:1px solid var(--line);border-radius:15px;background:#fff;box-shadow:0 5px 20px #24274408}
+.account-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.account-heading h2{margin:0 0 5px;color:var(--ink);font-size:15px}
+.account-heading p{margin:0;color:var(--muted);font-size:12px;line-height:1.55}
+.account-actions{display:flex;flex-wrap:wrap;gap:8px}
+.account-details{display:none;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:16px}
+.account-details.visible{display:grid}
+.account-stat{padding:11px;border:1px solid #eceef4;border-radius:10px;background:#fbfbfe}
+.account-stat small{display:block;margin-bottom:5px;color:#888fa0;font-size:9px;font-weight:750;letter-spacing:.4px;text-transform:uppercase}
+.account-stat strong{color:var(--ink);font-size:13px;overflow-wrap:anywhere}
+.account-feedback{margin:12px 0 0;color:var(--muted);font-size:11px}
+.account-edit{display:none;grid-column:1/-1;gap:10px;align-items:end}
+.account-edit.visible{display:grid;grid-template-columns:1fr 1fr auto}
+.account-edit label{display:block;margin-bottom:5px;color:#575e71;font-size:10px;font-weight:700}
+.account-edit input{width:100%;padding:9px;border:1px solid #e2e5ed;border-radius:8px}
+.page-view{display:none}
+.page-view.active{display:block}
+.page-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin:6px 0 22px}
+.page-heading h1{margin:0 0 6px;font-size:clamp(23px,3vw,30px);letter-spacing:-.7px}
+.page-heading p{margin:0;color:var(--muted);font-size:12px;line-height:1.6}
+.dashboard-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:0 0 18px}
+.dashboard-stat{padding:18px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.dashboard-stat small{display:block;margin-bottom:8px;color:#858b9b;font-size:10px;font-weight:750;letter-spacing:.5px;text-transform:uppercase}
+.dashboard-stat strong{font-size:26px;letter-spacing:-.5px}
+.dashboard-stat span{display:block;margin-top:5px;color:var(--muted);font-size:10px}
+.dashboard-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr);gap:16px}
+.chart-wrap{display:flex;height:170px;align-items:flex-end;gap:9px;padding:12px 4px 22px}
+.chart-bar{position:relative;display:flex;min-width:12px;flex:1;align-items:flex-end;justify-content:center;height:100%;border-radius:6px 6px 2px 2px;background:#efedff}
+.chart-bar span{position:absolute;bottom:-20px;color:#858b9b;font-size:9px;white-space:nowrap}
+.chart-bar i{width:100%;min-height:3px;border-radius:6px 6px 2px 2px;background:var(--primary)}
+.chart-bar strong{position:absolute;bottom:calc(var(--bar-height) + 3px);color:#18395f;font-size:9px;font-weight:750;white-space:nowrap}
+.data-table-wrap{overflow-x:auto}
+.data-table{width:100%;border-collapse:collapse;font-size:11px}
+.data-table th,.data-table td{padding:11px 9px;border-bottom:1px solid #eff0f5;text-align:left;white-space:nowrap}
+.data-table th{color:#858b9b;font-size:9px;letter-spacing:.4px;text-transform:uppercase}
+.data-table td{color:#50576a}
+.empty-state{padding:25px;border:1px dashed #dedfee;border-radius:12px;color:var(--muted);font-size:12px;line-height:1.7;text-align:center}
+.recommendation-list{display:grid;gap:9px}
+.recommendation{padding:12px;border:1px solid #eceaff;border-radius:10px;background:#faf9ff;color:#555c70;font-size:11px;line-height:1.6}
+.filter-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.filter-row .field{max-width:260px}
+.profile-hero{display:flex;align-items:center;gap:16px;margin-bottom:18px;padding:20px;border:1px solid var(--line);border-radius:15px;background:#fff}
+.profile-avatar{display:grid;width:62px;height:62px;flex:0 0 62px;place-items:center;border-radius:50%;background:#efedff;color:var(--primary-dark);font-size:22px;font-weight:800}
+.profile-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.profile-fields .wide{grid-column:1/-1}
+.profile-fields label,.settings-section label{display:block;margin-bottom:6px;color:#575e71;font-size:11px;font-weight:700}
+.profile-fields input,.profile-fields textarea,.settings-section input,.settings-section select{width:100%;padding:11px 12px;border:1px solid #e2e5ed;border-radius:9px;background:#fff;color:var(--ink);font-size:12px}
+.profile-fields textarea{min-height:90px;resize:vertical}
+.settings-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.settings-section{padding:18px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.settings-section h2{margin:0 0 8px;font-size:14px}
+.settings-section p{color:var(--muted);font-size:11px;line-height:1.65}
+.settings-section.danger-zone{border-color:#f1d8dc}
+.report-list{display:grid;gap:10px}
+.report-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px;border:1px solid var(--line);border-radius:11px;background:#fff}
+.report-detail{margin-top:16px}
+.answer-review{margin:12px 0;padding:14px;border:1px solid var(--line);border-radius:11px;background:#fff}
+.answer-review h3{margin:0 0 7px;font-size:12px}
+.answer-review p{color:#555c70;font-size:11px;line-height:1.65}
+dialog.confirm-dialog{width:min(480px,calc(100vw - 32px));padding:24px;border:1px solid var(--line);border-radius:16px;background:#fff;color:var(--ink);box-shadow:0 20px 70px #17172a30}
+dialog.confirm-dialog::backdrop{background:#15152566;backdrop-filter:blur(3px)}
+dialog.confirm-dialog h2{margin:0 0 8px;font-size:18px}
+dialog.confirm-dialog p{color:var(--muted);font-size:12px;line-height:1.65}
+dialog.confirm-dialog .toolbar{justify-content:flex-end}
+input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #aaa4ff;outline-offset:2px}
+@media(max-width:560px){.topbar-actions{gap:7px}.auth-links a{padding:8px;font-size:10px}.account-heading{flex-direction:column}.account-details{grid-template-columns:1fr 1fr}.account-edit.visible{grid-template-columns:1fr}.account-edit{grid-column:1}}
+.status{display:inline-flex;align-items:center;gap:8px;color:#737b8e;font-size:12px}
+.status:before{width:8px;height:8px;border-radius:50%;background:#49bd8b;content:""}
+main{width:min(1440px,100%);margin:0 auto;padding:34px clamp(20px,4vw,54px) 28px}
+.intro{position:relative;display:flex;min-height:200px;align-items:center;justify-content:space-between;gap:24px;overflow:hidden;margin-bottom:24px;padding:32px 38px;border:1px solid #e8e5ff;border-radius:20px;background:linear-gradient(110deg,#f0efff 0%,#fbfaff 66%,#fff 100%);box-shadow:0 10px 30px #29265808}
+.intro:after{position:absolute;right:9%;bottom:-100px;width:255px;height:255px;border:1px solid #dcd8ff;border-radius:50%;content:"";box-shadow:0 0 0 28px #6c63ff08,0 0 0 58px #6c63ff05}
+.intro-copy,.intro-actions{position:relative;z-index:1}
+.eyebrow{margin:0 0 10px;color:var(--primary-dark);font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase}
+.intro h1{margin:0 0 9px;color:var(--ink);font-size:clamp(27px,3vw,37px);letter-spacing:-1.3px}
+.intro p{max-width:600px;margin:0;color:var(--muted);font-size:13px;line-height:1.65}
+.intro-actions{display:flex;flex-shrink:0;flex-wrap:wrap;gap:10px}
+.toolbar{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0}
+.btn{display:inline-flex;min-height:41px;align-items:center;justify-content:center;gap:8px;padding:10px 15px;border:1px solid #e2e4ec;border-radius:10px;background:#fff;color:#50576a;font-size:12px;font-weight:700;cursor:pointer;transition:transform .16s,box-shadow .16s,border-color .16s,background .16s}
+.btn:hover:not(:disabled){transform:translateY(-1px);border-color:#c8c3ff;box-shadow:0 5px 14px #34305a12}
+.btn.primary{border-color:var(--primary);background:var(--primary);color:white;box-shadow:0 5px 12px #6c63ff30}
+.btn.primary:hover:not(:disabled){border-color:var(--primary-dark);background:var(--primary-dark)}
+.btn.danger{border-color:#f1d8dc;background:#fff8f8;color:#bd5360}
+.btn:disabled{opacity:.46;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(320px,.92fr);align-items:start;gap:18px}
+.panel,.performance-card{border:1px solid var(--line);border-radius:16px;background:var(--surface);box-shadow:0 5px 20px #24274408}
+.panel{margin-bottom:16px;padding:20px}
+.panel h2,.performance-card h2{margin:0;color:var(--ink);font-size:15px;font-weight:750;letter-spacing:-.2px}
+.panel h3,.performance-card h3{color:var(--ink);font-size:13px}
+.panelhead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.pill{display:inline-flex;align-items:center;max-width:65%;padding:6px 10px;border:1px solid #eceaff;border-radius:999px;background:#f7f6ff;color:#645bdc;font-size:10px;font-weight:750}
+.transcript{height:230px;overflow:auto;padding:15px;border:1px solid #eceef4;border-radius:12px;background:#fafbfe;color:#42495d;font-size:13px;line-height:1.75;white-space:pre-wrap}
+.empty{color:#969cad;font-style:italic}
+.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:0 0 13px}
+.metric{min-width:0;padding:12px;border:1px solid #eceef4;border-radius:11px;background:#fbfbfe}
+.metric label{display:block;margin-bottom:7px;color:#888fa0;font-size:9px;font-weight:750;letter-spacing:.4px}
+.metric strong{color:var(--ink);font-size:21px}
+.metric small{color:#969cad;font-size:10px}
+.hintbox{min-height:78px;padding:14px;border:1px solid #eceef4;border-radius:11px;background:#fafbfe;color:#4e5569;font-size:12px;line-height:1.65;white-space:pre-wrap}
+.muted{color:var(--muted);font-size:11px;line-height:1.6}
+.field{width:100%;padding:11px 12px;border:1px solid #e2e5ed;border-radius:10px;outline:none;background:#fff;color:var(--ink);font-size:12px;transition:border-color .15s,box-shadow .15s}
+.field:focus{border-color:#aaa4ff;box-shadow:0 0 0 3px #6c63ff18}
+label.fieldlabel{display:block;margin:14px 0 7px;color:#575e71;font-size:11px;font-weight:700}
+.hintlist{display:flex;max-height:210px;flex-direction:column;gap:8px;overflow:auto}
+.hintitem{padding:10px 12px;border:1px solid #eceef4;border-left:3px solid #9a93ff;border-radius:9px;background:#fafbfe;color:#555c70;font-size:11px;line-height:1.55}
+.hintitem.filler{border-left-color:#edb55f}
+.notice{margin-top:12px;color:#858b9b;font-size:10px;line-height:1.6}
+.camera-preview{display:flex;width:100%;aspect-ratio:16/9;align-items:center;justify-content:center;overflow:hidden;border:1px solid #e2e5ed;border-radius:12px;background:#f1f2f7}
+.camera-preview video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+.camera-message{padding:16px;color:#8b91a1;font-size:12px;text-align:center}
+.volume-track{height:8px;overflow:hidden;margin:12px 0;border-radius:20px;background:#eceef4}
+.volume-fill{width:0%;height:100%;border-radius:20px;background:#52bd8c;transition:width .1s}
+.face-feedback{min-height:50px;padding:11px;border:1px solid #eceef4;border-radius:10px;background:#fafbfe;color:#586075;font-size:11px;line-height:1.55}
+.performance-card{margin-top:4px;padding:22px}
+.performance-card>p{max-width:680px}
+.performance-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:16px}
+.performance-metric{min-width:0;padding:14px;border:1px solid #eceef4;border-radius:11px;background:#fbfbfe}
+.performance-metric small{display:block;margin-bottom:6px;color:#888fa0;font-size:10px}
+.performance-metric strong{color:var(--ink);font-size:20px}
+.performance-feedback{padding-left:19px;color:#555c70;font-size:12px;line-height:1.8}
+.footer{margin:24px 0 8px;color:#969cad;font-size:10px;text-align:center}
+dialog.interview-setup{width:min(560px,calc(100vw - 32px));padding:24px;border:1px solid var(--line);border-radius:17px;background:#fff;color:var(--ink);box-shadow:0 20px 70px #17172a30}
+dialog.interview-setup::backdrop{background:#15152566;backdrop-filter:blur(3px)}
+.mobile-brand{display:none}
+@media(max-width:1080px){.sidebar{width:218px}.workspace{margin-left:218px}.grid{grid-template-columns:minmax(0,1fr) minmax(290px,.92fr)}.performance-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:820px){.sidebar{position:sticky;top:0;z-index:6;width:100%;height:auto;flex-direction:column;align-items:stretch;gap:8px;padding:10px 16px;border-right:0;border-bottom:1px solid var(--line)}.brand{flex-shrink:0;margin:0 0 2px;font-size:17px}.brand-mark{width:31px;height:31px}.nav-group{margin:0}.nav-label{display:none}.sidebar-nav{display:flex;flex-wrap:wrap;gap:4px;overflow:visible}.sidebar-nav a{flex:1 1 130px;gap:7px;padding:9px;font-size:11px}.sidebar-note{display:none}.sidebar-logout{width:auto;align-self:flex-end;margin-top:0}.workspace{margin-left:0}.topbar{min-height:54px}.grid{grid-template-columns:1fr}.intro{min-height:140px;padding:23px}.intro:after{right:-20px}.intro-actions{max-width:220px}.camera-preview{max-height:300px}.performance-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}.dashboard-grid{grid-template-columns:1fr}}
+@media(max-width:560px){.sidebar{align-items:stretch;flex-direction:column;gap:8px;padding:10px 14px}.sidebar-nav{display:grid;width:100%;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}.sidebar-nav a{min-width:0;flex:auto;gap:7px;padding:9px;font-size:10px}.sidebar-logout{align-self:stretch}.topbar{align-items:flex-start;flex-direction:column;gap:5px;padding:9px 16px}.topbar-title{font-size:11px}.topbar-actions{width:100%;justify-content:space-between}.topbar-actions .topbar-title{max-width:48%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}.status{white-space:nowrap;font-size:10px}main{padding:20px 14px}.intro{align-items:flex-start;flex-direction:column;gap:18px;padding:22px}.intro h1{font-size:27px}.intro-actions{max-width:none}.toolbar .btn{flex:1}.panel{padding:16px}.metrics{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.metric{padding:9px}.metric strong{font-size:18px}.performance-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-stats{grid-template-columns:1fr}.profile-fields,.settings-layout{grid-template-columns:1fr}.profile-fields .wide{grid-column:auto}.page-heading{align-items:flex-start;flex-direction:column}.pill{max-width:58%;font-size:9px}.transcript{height:190px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
+.reduce-motion *, .reduce-motion *::before, .reduce-motion *::after{scroll-behavior:auto!important;transition:none!important}
+.page-heading.interview-heading{align-items:flex-start;flex-wrap:wrap}
+.interview-heading-copy h1{font-size:clamp(28px,4vw,38px)}
+.step-indicator{display:flex;align-items:center;gap:8px;margin-top:18px;color:#8b91a1;font-size:11px;font-weight:700}
+.step-indicator span{display:inline-flex;align-items:center;gap:7px}
+.step-indicator span:not(:last-child)::after{width:28px;height:1px;background:#dfe1ea;content:""}
+.step-indicator .active{color:var(--primary-dark)}
+.interview-setup-grid{display:grid;grid-template-columns:minmax(280px,.75fr) minmax(0,1.25fr);gap:16px;align-items:start}
+.setup-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.setup-options .field-block{min-width:0}
+.setup-options .field-block.wide{grid-column:1/-1}
+.setup-help{margin:5px 0 0;color:var(--muted);font-size:10px;line-height:1.55}
+.setup-device-list{display:grid;gap:10px}
+.device-status{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px;border:1px solid var(--line);border-radius:11px;background:#fbfbfe;color:#50576a;font-size:11px}
+.device-status strong{display:flex;align-items:center;gap:7px;font-size:11px}
+.device-status strong::before{width:8px;height:8px;border-radius:50%;background:#c5c9d4;content:""}
+.device-status[data-state="ready"] strong::before{background:#26986a}
+.device-status[data-state="error"] strong::before{background:#bf5260}
+.device-status[data-state="pending"] strong::before{background:#d39a28}
+.device-status span{color:var(--muted);text-align:right}
+.setup-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:17px 0}
+.setup-actions .primary{min-width:190px;min-height:48px;font-size:14px}
+.setup-resume{margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
+.setup-resume summary{color:#42495d;font-size:12px;font-weight:750;cursor:pointer}
+.setup-resume-content{padding-top:10px}
+.setup-resume-content .fieldlabel:first-child{margin-top:0}
+.technology-selection{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.technology-selection .fieldlabel{margin-top:0}
+.technology-selection .setup-help{margin:0 0 10px}
+.technology-selection .hintlist{max-height:230px}
+#startAIInterview{display:none}
+.live-workspace[hidden]{display:none}
+.interview-layout{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(220px,.82fr);align-items:start;gap:15px;min-width:0}
+.interview-layout>*{min-width:0}
+.interview-layout .panel{margin-bottom:14px}
+.interview-layout .side-column{min-width:0}
+.camera-panel .panelhead{margin-bottom:10px}
+.camera-stage{position:relative;display:flex;width:100%;min-height:280px;aspect-ratio:16/10;align-items:center;justify-content:center;overflow:hidden;border:1px solid #e2e5ed;border-radius:15px;background:#171927}
+.camera-stage .camera-preview{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;border:0;border-radius:0;background:#171927}
+.camera-stage .camera-preview video{object-fit:contain}
+.camera-stage .camera-message{color:#c5c9d4}
+.camera-label{position:absolute;top:12px;left:12px;z-index:1;padding:6px 9px;border:1px solid #ffffff26;border-radius:7px;background:#171927a8;color:#fff;font-size:10px;font-weight:700}
+.coach-floating{position:absolute;right:13px;bottom:13px;z-index:2;width:min(290px,calc(100% - 26px));max-height:70%;overflow:auto;border:1px solid #ffffff42;border-radius:12px;background:#fff;box-shadow:0 12px 30px #10121e55}
+.coach-floating.is-collapsed{width:auto;overflow:hidden}
+.coach-floating.is-collapsed .coach-body{display:none}
+.coach-header{display:flex;min-height:44px;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;background:#fbfaff;color:var(--ink);cursor:grab;touch-action:none}
+.coach-header:active{cursor:grabbing}
+.coach-heading{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:800}
+.coach-actions{display:flex;gap:4px}
+.coach-actions .btn{min-height:27px;padding:4px 7px;font-size:10px}
+.coach-body{padding:10px}
+.coach-body .muted{margin:0 0 7px;font-size:10px}
+.coach-body .hintbox{min-height:48px;padding:10px;font-size:11px}
+.coach-body .fieldlabel{margin-top:9px}
+.question-card{margin-top:14px;padding:20px;border:1px solid #e7e5ff;border-radius:15px;background:#fff;box-shadow:0 6px 20px #24274408}
+.question-meta{display:flex;justify-content:space-between;gap:10px;margin-bottom:12px;color:var(--primary-dark);font-size:11px;font-weight:750}
+.question-text{min-height:58px;margin:0;color:var(--ink);font-size:clamp(17px,2vw,22px);font-weight:700;line-height:1.5;letter-spacing:-.25px}
+.question-prompt{margin:9px 0 0;color:var(--muted);font-size:11px}
+.answer-feedback{margin-top:10px}
+.progress-summary{display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center;margin-bottom:10px}
+.progress-summary strong{font-size:13px}
+.progress-summary span{color:var(--muted);font-size:10px}
+.progress-track{height:8px;overflow:hidden;border-radius:9px;background:#efeff5}
+.progress-fill{width:0;height:100%;border-radius:inherit;background:var(--primary);transition:width .25s ease}
+.score-list{display:grid;gap:9px;margin-top:12px}
+.score-row{display:grid;grid-template-columns:minmax(72px,1fr) minmax(60px,1.3fr) 28px;align-items:center;gap:7px;color:#60677a;font-size:10px}
+.score-track{height:7px;overflow:hidden;border-radius:8px;background:#efeff5}
+.score-track i{display:block;height:100%;border-radius:inherit;background:#756cff}
+.score-row strong{color:var(--ink);font-size:10px;text-align:right}
+.presentation-tip{padding:11px;border:1px solid var(--line);border-radius:10px;background:#fbfbfe;color:#555c70;font-size:10px;line-height:1.55}
+.presentation-tip strong{display:block;margin-bottom:3px;color:var(--ink);font-size:10px}
+.presentation-tip.actual{border-color:#e4e0ff;background:#faf9ff}
+.camera-controls{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}
+.camera-controls .btn{flex:1}
+.camera-help{margin:6px 0;color:var(--muted);font-size:10px;line-height:1.55}
+.session-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;margin-bottom:12px}
+.session-actions .btn{min-height:35px;padding:8px 12px;font-size:11px}
+.live-workspace .transcript{height:190px}
+.coach-mobile-toggle{display:none}
+.interview-setup::backdrop{background:#15152566;backdrop-filter:blur(3px)}
+.interview-setup button{margin:8px 0}
+.focus-visible,.step-indicator:focus-visible{outline:3px solid #aaa4ff;outline-offset:2px}
+@media(max-width:1080px){.interview-layout{grid-template-columns:minmax(0,1fr)}.interview-layout .right-column{grid-column:1;display:grid;grid-template-columns:1fr 1fr;gap:14px}.interview-layout .right-column .panel{margin-bottom:0}}
+@media(max-width:820px){.interview-setup-grid{grid-template-columns:1fr}.camera-stage{min-height:240px}}
+@media(max-width:560px){.setup-options{grid-template-columns:1fr}.setup-options .field-block.wide{grid-column:auto}.setup-actions{align-items:stretch;flex-direction:column}.setup-actions .primary{width:100%}.step-indicator{gap:5px;font-size:9px}.step-indicator span:not(:last-child)::after{width:14px}.interview-layout{grid-template-columns:minmax(0,1fr)}.interview-layout .center-column{grid-row:1}.interview-layout .right-column{grid-row:2;grid-template-columns:minmax(0,1fr)}.interview-layout .panel,.question-card{min-width:0}.question-card .toolbar .btn{min-width:0;padding:9px 7px;white-space:normal}.camera-stage{display:flex;min-height:0;aspect-ratio:auto;overflow:visible;flex-direction:column;align-items:stretch;border:0;background:transparent}.camera-stage .camera-preview{position:relative;inset:auto;width:100%;height:auto;min-height:210px;aspect-ratio:4/3;border:1px solid #e2e5ed;border-radius:12px}.camera-label{top:12px;left:12px}.coach-floating{position:static;width:100%;max-height:none;margin-top:10px;border-color:var(--line);box-shadow:none}.coach-header{cursor:default}.coach-actions [data-coach-action="reset"]{display:none}.coach-mobile-toggle{display:inline-flex}.camera-controls .btn{font-size:10px}.question-card{padding:16px}.session-actions{justify-content:stretch}.session-actions .btn{flex:1;min-width:0}}
+</style>
+<style>
+:root {
+  color-scheme: light;
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --ink: #13243a;
+  --muted: #64748b;
+  --line: #e2e8f0;
+  --surface: #fff;
+  --soft: #eff6ff;
+}
+[hidden] { display: none !important; }
+body { background: #f3f6fb; color: var(--ink); }
+.sidebar { background: #10233f; border-right: 0; color: #e6edf7; box-shadow: 8px 0 28px #10233f12; }
+.brand { color: #fff; }
+.brand span { color: #93c5fd; }
+.brand-mark { background: #2563eb; box-shadow: 0 7px 18px #2563eb55; }
+.nav-label { color: #94a8c1; }
+.sidebar-nav a { color: #c3d0e0; }
+.sidebar-nav a:hover, .sidebar-nav a.active { background: #203a5d; color: #fff; }
+.sidebar-user { color: #a9bad0; }
+.sidebar-user strong { color: #fff; }
+.sidebar-note { border-color: #294361; background: #172f4d; color: #b7c7da; }
+.sidebar-note strong { color: #fff; }
+.sidebar-logout { border-color: #39516f; background: #172f4d; color: #e6edf7; }
+.workspace { background: #f3f6fb; }
+.topbar { border-color: #e2e8f0; background: #ffffffed; }
+main { max-width: 1800px; margin: 0 auto; padding: 32px clamp(20px, 3vw, 48px) 56px; }
+.panel, .dashboard-stat, .settings-section, .profile-hero, .account-card {
+  border-color: #e4eaf2;
+  border-radius: 17px;
+  box-shadow: 0 8px 26px #1732530a;
+}
+.panel { padding: 21px; }
+.btn { border-color: #d7e0eb; border-radius: 10px; color: #33465e; transition: background .18s, border-color .18s, transform .18s, box-shadow .18s; }
+.btn:hover:not(:disabled) { border-color: #b8c9dd; background: #f8fbff; box-shadow: 0 4px 12px #16395b12; transform: translateY(-1px); }
+.btn.primary { border-color: #2563eb; background: #2563eb; color: #fff; box-shadow: 0 6px 15px #2563eb2e; }
+.btn.primary:hover:not(:disabled) { border-color: #1d4ed8; background: #1d4ed8; }
+.btn.danger { border-color: #f0cbd0; background: #fff8f8; color: #b42332; }
+.btn:focus-visible, .sidebar-nav a:focus-visible { outline-color: #60a5fa; }
+.field { border-color: #d9e2ed; border-radius: 10px; background: #fff; color: var(--ink); }
+.field:focus { border-color: #60a5fa; outline: 3px solid #dbeafe; }
+.status { border-color: #dbeafe; background: #eff6ff; color: #1d4ed8; }
+.page-heading h1 { color: #13243a; }
+.eyebrow { color: #2563eb; }
+.setup-welcome { display: grid; grid-template-columns: minmax(220px, .75fr) minmax(0, 1.25fr); gap: 24px; align-items: center; margin-bottom: 16px; padding: 24px; background: linear-gradient(125deg, #fff 20%, #f5f9ff); }
+.setup-welcome h2 { margin: 2px 0 7px; color: var(--ink); font-size: clamp(18px, 2vw, 22px); }
+.setup-welcome p:not(.eyebrow) { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.65; }
+.setup-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.setup-summary > div, .completion-stats > div { min-width: 0; padding: 12px 14px; border: 1px solid #e5edf7; border-radius: 12px; background: #fff; }
+.setup-summary span, .completion-stats span { display: block; margin-bottom: 5px; color: #708198; font-size: 9px; font-weight: 800; letter-spacing: .55px; text-transform: uppercase; }
+.setup-summary strong, .completion-stats strong { color: #13243a; font-size: 13px; overflow-wrap: anywhere; }
+.interview-setup-grid { gap: 18px; }
+.setup-device-list { margin-bottom: 14px; }
+.device-status { border-color: #e5edf5; border-radius: 12px; background: #f8fafd; }
+.setup-preview { display: grid; gap: 9px; }
+.setup-preview-stage { position: relative; display: grid; min-height: 130px; place-items: center; overflow: hidden; border: 1px solid #dce5ef; border-radius: 13px; background: #13243a; color: #c5d2e2; font-size: 11px; text-align: center; }
+.setup-preview-stage video { display: none; width: 100%; height: 100%; max-height: 210px; aspect-ratio: 16 / 9; object-fit: contain; }
+.setup-preview-stage span { padding: 16px; }
+.setup-preview-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.setup-preview-actions .btn { width: 100%; }
+.setup-actions { align-items: center; margin-top: 20px; padding: 17px 19px; border: 1px solid #dce8f6; border-radius: 15px; background: #eef5ff; }
+.setup-start-copy { max-width: 620px; }
+.setup-start-copy strong { color: #18395f; font-size: 12px; line-height: 1.55; }
+.setup-start-copy p { margin: 6px 0 0; }
+.setup-actions .primary { min-width: 210px; min-height: 50px; font-weight: 750; }
+.interview-layout { grid-template-columns: minmax(0, 2.2fr) minmax(210px, .7fr); align-items: start; gap: 18px; }
+.interview-layout .panel { margin-bottom: 16px; }
+.camera-panel { position: static; }
+.camera-stage { height: auto; min-height: 360px; aspect-ratio: 16 / 9; border-color: #263b55; border-radius: 18px; background: #0c1726; box-shadow: 0 14px 36px #0e233b24; }
+.live-workspace:not([hidden]) .camera-stage { min-height: clamp(480px, 68vh, 760px); aspect-ratio: 16 / 10; }
+.camera-stage .camera-preview { background: #0c1726; }
+.camera-stage .camera-preview video { object-fit: contain; }
+.camera-label { top: 14px; left: 14px; border-color: #ffffff30; border-radius: 8px; background: #10233fbd; }
+.coach-floating { width: min(255px, calc(46% - 13px)); max-height: 48%; border-color: #ffffff38; border-radius: 14px; background: #10233fe8; color: #f8fafc; box-shadow: 0 14px 36px #06142670; backdrop-filter: blur(14px); }
+.coach-floating[hidden], .completion-screen[hidden] { display: none !important; }
+.coach-floating.is-collapsed { width: auto; }
+.coach-header { min-height: 46px; border-bottom: 1px solid #ffffff20; background: #ffffff12; color: #fff; }
+.coach-heading { color: #fff; }
+.coach-header .pill { border-color: #ffffff26; background: #ffffff16; color: #d7e8ff; }
+.coach-actions .btn { min-height: 28px; border-color: #ffffff24; background: #ffffff12; color: #f8fafc; }
+.coach-actions .btn:hover:not(:disabled) { border-color: #ffffff50; background: #ffffff22; }
+.coach-body { color: #f8fafc; }
+.coach-body .muted { color: #c0d0e3; font-size: 11px; }
+.coach-body .fieldlabel { color: #e8f0f9; }
+.coach-body .field { border-color: #ffffff30; background: #f8fafc; color: #13243a; }
+.coach-body textarea { resize: none; }
+.coach-body .hintbox { border-color: #ffffff24; background: #1a3555; color: #eff6ff; }
+.coach-live-cues { display: grid; gap: 8px; margin: 10px 0; }
+.coach-live-cues > div { display: grid; gap: 3px; padding: 8px 9px; border: 1px solid #ffffff20; border-radius: 9px; background: #ffffff0d; }
+.coach-live-cues strong { color: #bfdbfe; font-size: 9px; text-transform: uppercase; }
+.coach-live-cues span { color: #f1f5f9; font-size: 11px; line-height: 1.45; }
+.coach-show { position: absolute; top: 13px; right: 13px; z-index: 3; border-color: #ffffff3b; background: #10233fe8; color: #fff; }
+.coach-show:hover:not(:disabled) { border-color: #ffffff66; background: #1a3555; }
+.question-card { margin-top: 17px; border-color: #dce8f6; border-radius: 17px; box-shadow: 0 9px 28px #18395f0d; }
+.question-eyebrow { margin: 0 0 8px; }
+.question-meta { color: #1d4ed8; }
+.question-text { color: #13243a; }
+.progress-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 15px 0; }
+.progress-stat { display: grid; gap: 6px; min-width: 0; padding: 11px; border: 1px solid #e5edf5; border-radius: 11px; background: #f8fafd; }
+.progress-stat > span { color: #708198; font-size: 9px; font-weight: 750; }
+.progress-stat > strong { color: #18395f; font-size: 13px; }
+.progress-stat-percent { grid-template-columns: 1fr auto; align-items: center; background: #eff6ff; }
+.progress-stat-percent span { grid-column: 1; }
+.progress-stat-percent strong { grid-column: 2; grid-row: 1 / span 2; color: #1d4ed8; font-size: 20px; }
+.mini-track { height: 5px; }
+.mini-track .progress-fill { background: #16a34a; }
+.remaining-track .progress-fill { background: #f59e0b; }
+.progress-fill { background: #2563eb; }
+.score-track i { background: #3b82f6; }
+.presentation-tip { border-color: #e3ebf4; border-radius: 12px; background: #f8fafd; font-size: 11px; }
+.presentation-tip.actual { border-color: #bfdbfe; background: #eff6ff; }
+.face-feedback-card { display: flex; align-items: flex-start; gap: 11px; padding: 13px; border: 1px solid #bfdbfe; border-radius: 12px; background: #fff; }
+.face-feedback-card > span { flex: 0 0 auto; font-size: 25px; line-height: 1; }
+.face-feedback-card p { margin: 0; color: #18395f; font-size: 12px; font-weight: 650; line-height: 1.55; }
+.session-actions { justify-content: flex-end; gap: 9px; }
+.session-actions .btn { min-height: 40px; }
+.completion-screen { margin-top: 20px; padding: clamp(22px, 4vw, 38px); border-color: #cfe0f4; background: linear-gradient(145deg, #fff, #f3f8ff); text-align: center; }
+.completion-mark { display: grid; width: 50px; height: 50px; margin: 0 auto 15px; place-items: center; border-radius: 50%; background: #dcfce7; color: #15803d; font-size: 25px; font-weight: 800; }
+.completion-screen h2 { margin: 0 0 8px; color: #13243a; font-size: clamp(23px, 3vw, 30px); }
+.completion-intro { margin: 0 auto 20px; color: #64748b; font-size: 12px; }
+.completion-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11px; max-width: 760px; margin: 0 auto 22px; text-align: left; }
+.completion-feedback-wrap { max-width: 760px; margin: 0 auto; text-align: left; }
+.completion-feedback-wrap h3 { font-size: 14px; }
+.completion-feedback-wrap ul { padding-left: 19px; color: #475569; font-size: 12px; line-height: 1.7; }
+.completion-actions { justify-content: center; margin-top: 20px; }
+.completion-actions .btn { min-height: 42px; }
+@media (max-width: 1280px) and (min-width: 821px) {
+  .interview-layout { grid-template-columns: minmax(0, 1.9fr) minmax(210px, .7fr); }
+  .camera-stage { height: auto; min-height: 0; }
+  .live-workspace:not([hidden]) .camera-stage { min-height: clamp(430px, 62vh, 640px); }
+}
+@media (max-width: 820px) {
+  .sidebar { width: 100%; }
+  .workspace { margin-left: 0; }
+  .setup-welcome { grid-template-columns: 1fr; }
+  .interview-layout { grid-template-columns: minmax(0, 1fr); }
+  .interview-layout .center-column { grid-column: 1; grid-row: 1; }
+  .interview-layout .right-column { grid-column: 1; grid-row: 2; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .interview-layout .right-column .panel { margin-bottom: 0; }
+  .camera-stage { height: auto; min-height: 0; }
+  .live-workspace:not([hidden]) .camera-stage { min-height: clamp(380px, 58vh, 600px); }
+}
+@media (max-width: 560px) {
+  main { padding: 20px 14px 36px; }
+  .setup-welcome { padding: 18px; }
+  .setup-summary { gap: 7px; }
+  .setup-summary > div { padding: 10px; }
+  .setup-summary strong { font-size: 11px; }
+  .setup-actions { padding: 15px; }
+  .interview-layout { grid-template-columns: minmax(0, 1fr); }
+  .interview-layout .center-column { grid-column: 1; grid-row: 1; }
+  .interview-layout .right-column { grid-column: 1; grid-row: 2; display: grid; grid-template-columns: minmax(0, 1fr); }
+  .camera-stage { height: auto; min-height: 0; aspect-ratio: auto; overflow: visible; flex-direction: column; align-items: stretch; border: 0; background: transparent; box-shadow: none; }
+  .live-workspace:not([hidden]) .camera-stage { min-height: 0; }
+  .camera-stage .camera-preview { position: relative; inset: auto; width: 100%; height: auto; min-height: 210px; aspect-ratio: 4 / 3; border: 1px solid #263b55; border-radius: 13px; }
+  .camera-label { top: 12px; left: 12px; }
+  .coach-floating { position: relative; right: auto; bottom: auto; width: 100%; max-height: 42vh; margin-top: 10px; }
+  .coach-header { cursor: default; }
+  .coach-actions [data-coach-action="reset"] { display: none; }
+  .coach-mobile-toggle { display: inline-flex; }
+  .progress-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .completion-stats { grid-template-columns: 1fr; }
+  .completion-actions .btn { flex: 1 1 100%; }
+}
+</style>
+</head>
+<body>
+<div id="authLoading" role="status" aria-live="polite">Checking your InterviewProAI session…</div>
+<div class="app-shell">
+  <aside class="sidebar" aria-label="Main navigation">
+    <a class="brand" href="#dashboard" data-page="dashboard" aria-label="InterviewProAI dashboard">
+      <span class="brand-mark" aria-hidden="true">✦</span><span>Interview<span>ProAI</span></span>
+    </a>
+    <div class="nav-group">
+      <p class="nav-label">Workspace</p>
+      <nav class="sidebar-nav" aria-label="Workspace">
+        <a class="active" href="#dashboard" data-page="dashboard"><span class="nav-icon" aria-hidden="true">⌂</span>Dashboard</a>
+        <a href="#start" data-page="start"><span class="nav-icon" aria-hidden="true">＋</span>Start Interview</a>
+        <a href="#history" data-page="history"><span class="nav-icon" aria-hidden="true">◷</span>Interview History</a>
+        <a href="#reports" data-page="reports"><span class="nav-icon" aria-hidden="true">▥</span>Performance Reports</a>
+      </nav>
+    </div>
+    <div class="nav-group">
+      <p class="nav-label">Personal</p>
+      <nav class="sidebar-nav" aria-label="Personal">
+        <a href="#profile" data-page="profile"><span class="nav-icon" aria-hidden="true">♙</span>My Profile</a>
+        <a href="#settings" data-page="settings"><span class="nav-icon" aria-hidden="true">⚙</span>Settings</a>
+      </nav>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-note"><strong>Your practice, your pace</strong>Your interviews and feedback are saved to your local account.</div>
+      <div class="sidebar-user">Signed in as <strong id="sidebarUser"></strong></div>
+      <button class="btn sidebar-logout" id="logoutButton" type="button">↪ Logout</button>
+    </div>
+  </aside>
+  <div class="workspace">
+    <header class="topbar">
+      <span class="topbar-title" id="pageTitle">Dashboard</span>
+      <div class="topbar-actions">
+        <span id="topbarUser" class="topbar-title"></span>
+        <span class="status" id="status">Ready · Local database</span>
+      </div>
+    </header>
+    <main>
+      <section class="page-view active" id="dashboardPage" data-view="dashboard">
+       <div class="page-heading">
+        <div class="intro-copy">
+          <p class="eyebrow">Your preparation overview</p>
+          <h1 id="welcomeTitle">Welcome back</h1>
+          <p>See your practice progress and continue building interview confidence.</p>
+        </div>
+        <div class="intro-actions">
+          <button class="btn primary" id="newSession">＋ Start new interview</button>
+        </div>
+       </div>
+       <div class="dashboard-stats">
+        <article class="dashboard-stat"><small>Completed interviews</small><strong id="dashboardCompleted">—</strong><span>Finished practice sessions</span></article>
+        <article class="dashboard-stat"><small>Average answer score</small><strong id="dashboardScore">—</strong><span>Based on saved answer evaluations</span></article>
+        <article class="dashboard-stat"><small>Sessions started</small><strong id="dashboardTotal">—</strong><span>All your saved practice sessions</span></article>
+       </div>
+       <div class="dashboard-grid">
+        <section class="panel">
+          <div class="panelhead"><h2>Practice progress</h2><span class="pill">SCORED REPORTS</span></div>
+          <p class="muted">Average answer scores from your saved performance reports.</p>
+          <div id="dashboardTrend" class="chart-wrap" role="group" aria-label="Practice progress by interview score"></div>
+          <div id="dashboardTrendEmpty" class="empty-state">Your practice scores will appear after you complete an interview and generate a report.</div>
+        </section>
+        <section class="panel">
+          <div class="panelhead"><h2>Practice recommendations</h2></div>
+          <div id="dashboardRecommendations" class="recommendation-list"><div class="empty-state">Complete an interview to get recommendations based on your feedback.</div></div>
+        </section>
+        <section class="panel" style="grid-column:1/-1">
+          <div class="panelhead"><h2>Recent interviews</h2><button class="btn" type="button" data-page="history">View history</button></div>
+          <div id="dashboardRecent"><div class="empty-state">Your completed practice sessions will appear here.</div></div>
+        </section>
+       </div>
+      </section>
+      <section class="page-view" id="startPage" data-view="start">
+       <div class="page-heading interview-heading">
+        <div class="interview-heading-copy">
+         <p class="eyebrow">A calm space to practice</p>
+         <h1>Ready for your interview?</h1>
+         <p>Let's get everything ready before we begin.</p>
+         <div class="step-indicator" aria-label="Interview steps">
+          <span class="active">1 Setup</span><span>2 Interview</span><span>3 Results</span>
+         </div>
+        </div>
+        <button class="btn" id="cancelInterview" type="button">Back to Dashboard</button>
+       </div>
+       <section id="setupPanel">
+         <section class="setup-welcome panel" aria-labelledby="setupWelcomeTitle">
+          <div>
+           <p class="eyebrow">Interview information</p>
+           <h2 id="setupWelcomeTitle">A little preparation goes a long way</h2>
+           <p>Choose your focus, enable both devices, and begin your practice.</p>
+          </div>
+          <div class="setup-summary" aria-label="Interview summary">
+           <div><span>Interview title</span><strong id="summaryTitle">Interview practice</strong></div>
+           <div><span>Interview role</span><strong id="summaryRole">Software Engineer</strong></div>
+           <div><span>Interview type</span><strong id="summaryType">Technical</strong></div>
+           <div><span>Resume</span><strong id="summaryResume">Not uploaded</strong></div>
+           <div><span>Duration</span><strong id="summaryDuration">Flexible · at your pace</strong></div>
+          </div>
+         </section>
+         <div class="interview-setup-grid">
+          <section class="panel">
+          <div class="panelhead"><h2>Camera and microphone setup</h2><span class="pill">REQUIRED</span></div>
+          <p class="muted">Enable both devices before starting. Your first interview question will appear after they are ready.</p>
+          <div class="setup-device-list" aria-live="polite">
+           <div class="device-status" id="cameraReadiness" role="status" aria-label="Camera: Permission needed" data-state="pending"><strong>Camera</strong><span>Permission needed</span></div>
+           <div class="device-status" id="microphoneReadiness" role="status" aria-label="Microphone: Permission needed" data-state="pending"><strong>Microphone</strong><span>Permission needed</span></div>
+           <div class="device-status" id="resumeReadiness" role="status" aria-label="Resume: Not uploaded" data-state="pending"><strong>Resume</strong><span>Not uploaded</span></div>
+          </div>
+          <div class="setup-preview">
+           <div class="setup-preview-stage">
+            <video id="setupCameraPreview" autoplay muted playsinline></video>
+            <span id="setupCameraMessage">Your camera preview will appear here when enabled.</span>
+           </div>
+           <div class="setup-preview-actions">
+            <button class="btn" id="setupEnableMedia" type="button">Enable camera &amp; microphone</button>
+            <button class="btn" id="setupDisableMedia" type="button" disabled>Turn both off</button>
+           </div>
+          </div>
+          <p id="deviceCheck" class="muted" aria-live="polite">Enable both your camera and microphone to continue to interview setup.</p>
+         </section>
+          <section class="panel">
+          <div class="panelhead"><h2>Interview setup</h2><span class="pill">PERSONALIZED PRACTICE</span></div>
+          <p class="muted">Choose your interview focus and how you would like to respond.</p>
+          <div class="setup-options">
+           <div class="field-block"><label for="jobRole">Target job role</label><select class="field" id="jobRole"><option>Software Engineer</option></select><p class="setup-help">Questions will be tailored to this role.</p></div>
+           <div class="field-block"><label for="experienceLevel">Experience level</label><select class="field" id="experienceLevel"><option value="">Select experience level</option><option>Entry-level</option><option>Early-career</option><option>Mid-level</option><option>Senior</option></select><p class="setup-help">Helps tune the depth of your questions.</p></div>
+           <div class="field-block"><label for="interviewType">Interview category</label><select class="field" id="interviewType"><option value="technical">Technical</option><option value="hr">HR</option><option value="behavioral">Behavioral</option></select></div>
+           <div class="field-block"><label for="difficulty">Difficulty</label><select class="field" id="difficulty"><option value="beginner">Beginner</option><option value="intermediate" selected>Intermediate</option><option value="advanced">Advanced</option></select></div>
+           <div class="field-block wide"><label for="responseMode">Answer format</label><select class="field" id="responseMode"><option value="both" selected>Voice or text</option><option value="voice">Voice</option><option value="text">Text</option></select><p class="setup-help">Enable your camera and microphone before your first question. You can answer by voice or text.</p></div>
+          </div>
+          <section class="technology-selection">
+           <label class="fieldlabel">Choose technologies · Select up to 8</label>
+           <p class="setup-help">Pick technologies to personalize a technical interview. You can also choose a resume below.</p>
+           <div id="technologyOptions" class="hintlist"></div>
+          </section>
+          <details class="setup-resume">
+           <summary>Upload a resume</summary>
+           <div class="setup-resume-content">
+             <p class="setup-help">Upload becomes available after a session is created. Resume analysis can personalize your interview questions.</p>
+            <label class="fieldlabel" for="resume">Resume file · PDF, DOCX, TXT or Markdown</label>
+            <input class="field" type="file" id="resume" accept=".pdf,.docx,.txt,.md" disabled>
+            <button class="btn" id="analyzeResume" type="button" disabled style="margin-top:10px">Analyze resume</button>
+            <p class="muted" id="resumeStatus">Upload a resume, then analyze it to personalize your interview.</p>
+            <pre class="hintbox" id="resumeAnalysis">Your extracted resume profile will appear here after analysis.</pre>
+           </div>
+          </details>
+         </section>
+        </div>
+        <div class="setup-actions">
+         <div class="setup-start-copy">
+          <strong>Enable your camera and microphone first. Your questions will begin once both are ready.</strong>
+          <p class="muted" id="currentSessionNotice" aria-live="polite">No active interview session.</p>
+         </div>
+         <div>
+          <button class="btn primary" id="newInterviewStart" type="button" disabled>Start My Interview</button>
+          <button class="btn" id="startAIInterview" type="button" disabled>Start interview setup</button>
+         </div>
+        </div>
+       </section>
+       <dialog class="interview-setup" id="interviewSetup" aria-labelledby="interviewSetupTitle">
+        <h2 id="interviewSetupTitle">Choose your question source</h2>
+        <p class="muted">Choose a question source after your camera and microphone are ready.</p>
+        <button class="btn primary" id="technologyInterviewOption" type="button" style="width:100%">Choose technologies</button>
+        <button class="btn" id="resumeInterviewOption" type="button" style="width:100%">Use my resume</button>
+        <p class="muted" id="interviewSetupStatus" aria-live="polite"></p>
+        <button class="btn" id="cancelInterviewSetup" type="button">Cancel</button>
+       </dialog>
+       <div id="liveWorkspace" class="live-workspace" hidden>
+        <div class="session-actions" aria-label="Interview controls">
+         <button class="btn" id="listen" type="button" disabled>Start listening</button>
+         <button class="btn danger" id="stop" type="button" disabled>End interview</button>
+         <button class="btn" id="export" type="button" disabled>Download Interview Report</button>
+        </div>
+        <div class="interview-layout" id="interviewSetupSection">
+         <div class="center-column">
+          <section class="panel camera-panel" id="cameraPanel">
+           <div class="panelhead"><h2>Your camera</h2><span class="pill">CENTER STAGE</span></div>
+           <div class="camera-stage" id="cameraStage">
+            <div class="camera-preview">
+             <video id="cameraPreview" autoplay muted playsinline style="display:none"></video>
+             <div class="camera-message" id="cameraMessage">Camera is off. Enable it when you are ready.</div>
+            </div>
+            <span class="camera-label">Your camera</span>
+            <button class="btn coach-show" id="showCoachPanel" type="button" hidden>Show AI Coach</button>
+            <section class="coach-floating" id="aiCoachPanel" aria-label="AI Coach suggestions">
+             <header class="coach-header" id="coachDragHandle">
+              <span class="coach-heading">AI Coach <span class="pill" id="hintMode">LOCAL MODE</span></span>
+              <span class="coach-actions">
+               <button class="btn" type="button" data-coach-action="reset" aria-label="Reset AI Coach position" title="Reset position">Reset</button>
+               <button class="btn coach-mobile-toggle" type="button" data-coach-action="toggle" aria-expanded="true" aria-label="Minimize AI Coach">Minimize</button>
+               <button class="btn" type="button" data-coach-action="toggle" aria-expanded="true" aria-label="Minimize AI Coach">−</button>
+               <button class="btn" type="button" data-coach-action="hide" aria-label="Hide AI Coach">Hide</button>
+              </span>
+             </header>
+             <div class="coach-body">
+              <p class="muted">Live cues and a private prompt to help you shape your own answer.</p>
+              <div class="coach-live-cues">
+               <div><strong>Camera cue</strong><span id="coachFaceMessage">Live camera cues are off.</span></div>
+               <div><strong>Speaking tip</strong><span id="coachSpeakingMessage">Pacing feedback will appear here when available.</span></div>
+              </div>
+              <label class="fieldlabel" for="question">Your interview question</label>
+              <textarea id="question" class="field" rows="2" placeholder="Your current interview question" disabled></textarea>
+              <label class="fieldlabel">Latest suggestion</label>
+              <div class="hintbox" id="latestHint">Your actual interview suggestion will appear here when available.</div>
+             </div>
+            </section>
+           </div>
+           <div class="camera-controls">
+            <button class="btn" id="enableMedia" type="button">Enable camera &amp; microphone</button>
+            <button class="btn" id="disableMedia" type="button" disabled>Turn both off</button>
+           </div>
+           <p id="mediaStatus" class="camera-help">Start an interview first.</p>
+           <div class="volume-track"><div class="volume-fill" id="volumeFill"></div></div>
+           <p id="volumeText" class="camera-help">Microphone not tested.</p>
+          </section>
+          <section class="question-card" id="liveInterview">
+           <p class="eyebrow question-eyebrow">Your Interview Question</p>
+           <div class="question-meta"><span id="questionNumber">Question —</span><span id="questionCategory">Interview question</span></div>
+           <h2 class="question-text" id="aiQuestion" aria-live="polite">Your first question will appear here.</h2>
+           <p class="question-prompt">Take a moment to think through your answer.</p>
+           <div class="toolbar">
+            <button class="btn" id="speakAIQuestion" type="button" disabled>Read question</button>
+            <button class="btn" id="stopSpeaking" type="button" disabled>Stop audio</button>
+            <button class="btn primary" id="getHint" type="button" disabled>Generate hint</button>
+           </div>
+           <label class="fieldlabel" for="answerInput">Your answer</label>
+           <textarea id="answerInput" class="field" rows="5" placeholder="Speak with the microphone or type your answer here." disabled></textarea>
+           <div class="hintbox answer-feedback" id="answerFeedback" aria-live="polite">Answer feedback will appear after each question.</div>
+           <div class="toolbar">
+            <button class="btn primary" id="nextAIQuestion" type="button" disabled>Submit answer</button>
+            <button class="btn" id="repeatAIQuestion" type="button" disabled>Repeat question</button>
+           </div>
+          </section>
+           <section class="panel">
+            <div class="panelhead"><h2>Your progress</h2><span class="pill" id="interviewProgress">Not started</span></div>
+            <div class="progress-summary">
+             <div class="progress-stat"><span>Questions completed</span><strong id="progressCompleted">0 completed</strong><div class="progress-track mini-track"><div class="progress-fill" id="progressCompletedFill"></div></div></div>
+             <div class="progress-stat"><span>Questions remaining</span><strong id="progressRemaining">0</strong><div class="progress-track mini-track remaining-track"><div class="progress-fill" id="progressRemainingFill"></div></div></div>
+             <div class="progress-stat"><span>Current question</span><strong id="progressCurrent">Question —</strong><span id="progressTotal">of 0 questions</span></div>
+             <div class="progress-stat progress-stat-percent"><span>Interview completion</span><strong id="progressPercent">0%</strong></div>
+            </div>
+            <div class="progress-track" role="progressbar" aria-label="Interview completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="interviewProgressBar"><div class="progress-fill" id="interviewProgressFill"></div></div>
+            <p class="muted">Progress updates after an answer has been evaluated.</p>
+            <h3>Question scores · out of 5</h3>
+            <div id="questionScoreChart" class="score-list" aria-label="Evaluated answer scores"></div>
+            <div id="questionScoreEmpty" class="empty-state">Scores will appear after your first evaluated answer.</div>
+           </section>
+           <section class="panel" id="sessionActivity">
+            <div class="panelhead"><h2>Live transcript</h2><span class="pill" id="sessionTag">No active session</span></div>
+            <div class="metrics">
+             <div class="metric"><label>WORDS THIS SESSION</label><strong id="words">0</strong><br><small>recognized words</small></div>
+             <div class="metric"><label>FILLER WORDS</label><strong id="fillers">0</strong><br><small>um, like, basically…</small></div>
+             <div class="metric"><label>DELIVERY CHECK</label><strong id="delivery" style="font-size:16px">Ready</strong><br><small id="deliverySub">Start speaking</small></div>
+            </div>
+            <div class="transcript" id="transcript"><span class="empty">Your recognized speech will appear here.</span></div>
+            <p class="notice">Speech recognition may use your browser's online service. Ask for consent before transcribing other people.</p>
+           </section>
+         </div>
+         <aside class="side-column right-column">
+          <section class="panel">
+           <div class="panelhead"><h2>Camera &amp; presentation</h2></div>
+           <label class="fieldlabel"><input type="checkbox" id="faceCoachOptIn" disabled> Camera framing cues</label>
+           <p class="camera-help">On-device cues are limited to framing and visibility. They do not infer emotion or affect your score.</p>
+           <div class="presentation-tip actual"><strong>Live camera cue</strong><div class="face-feedback-card" role="status" aria-live="polite"><span id="faceFeedbackIcon" aria-hidden="true">📷</span><p id="faceFeedback">Live camera cues are off. Enable the setting and camera to use framing feedback.</p></div></div>
+           <div class="presentation-tip"><strong>General framing tip</strong>Keep your face centered and comfortably within the camera frame.</div>
+           <div class="presentation-tip" style="margin-top:8px"><strong>General visibility tip</strong>Choose a well-lit space so you are easy to see.</div>
+           <div class="presentation-tip" style="margin-top:8px"><strong>General presentation tip</strong>Look toward the camera occasionally while explaining your answer.</div>
+          </section>
+          <section class="panel">
+           <div class="panelhead"><h2>Session activity</h2><span class="pill">LIVE</span></div>
+           <div class="hintlist" id="hintList"><div class="empty">Pacing and filler-word feedback will appear here.</div></div>
+          </section>
+         </aside>
+        </div>
+        <section class="completion-screen panel" id="completionScreen" hidden aria-labelledby="completionTitle">
+         <div class="completion-mark" aria-hidden="true">✓</div>
+         <p class="eyebrow">Interview complete</p>
+         <h2 id="completionTitle">Great job! You've completed your interview.</h2>
+         <p class="completion-intro">Take a breath and review the real results from your practice.</p>
+         <div class="completion-stats">
+          <div><span>Session duration</span><strong id="completionDuration">—</strong></div>
+          <div><span>Questions answered</span><strong id="completionAnswered">0</strong></div>
+          <div><span>Average answer score</span><strong id="completionScore">—</strong></div>
+         </div>
+         <div class="completion-feedback-wrap"><h3>Your feedback</h3><ul id="completionFeedback"><li>Your saved answer feedback will appear here.</li></ul></div>
+         <div class="toolbar completion-actions">
+          <button class="btn primary" id="completionReportButton" type="button">Generate performance report</button>
+          <button class="btn" id="completionNewInterview" type="button">Start another interview</button>
+          <button class="btn" id="completionViewReports" type="button">View all reports</button>
+         </div>
+        </section>
+       </div>
+      </section>
+      <section class="page-view" id="reportsPage" data-view="reports">
+       <div class="page-heading"><div><p class="eyebrow">Your feedback</p><h1>Performance reports</h1><p>Review saved answer scores, communication metrics, strengths, and next-step feedback.</p></div></div>
+       <section class="panel">
+        <div class="panelhead"><h2>Score trend</h2><span class="pill">SAVED REPORTS</span></div>
+        <div id="reportTrend" class="chart-wrap"></div>
+        <div id="reportTrendEmpty" class="empty-state">No scored reports yet. Complete an interview and generate a report to see your progress.</div>
+       </section>
+       <section class="panel">
+        <div class="panelhead"><h2>Saved reports</h2></div>
+        <div id="savedReports" class="report-list"><div class="empty-state">Loading your reports…</div></div>
+       </section>
+       <div id="reportDetail" class="report-detail"></div>
+       <section class="performance-card" id="performanceReport">
+        <div class="panelhead"><h2>Performance report</h2><span class="pill">PRACTICE INSIGHTS</span></div>
+        <p class="muted">Generate a report for the active interview. Scoring uses saved answer evaluations; speaking metrics are shown only when voice transcription was captured.</p>
+        <button class="btn primary" id="analyzePerformance" disabled>Generate final report</button>
+        <div class="performance-metrics">
+          <div class="performance-metric"><small>Speaking rate</small><strong id="perfWpm">—</strong><small>words per minute</small></div>
+          <div class="performance-metric"><small>Filler words</small><strong id="perfFiller">—</strong><small id="perfFillerCount">Not analyzed</small></div>
+          <div class="performance-metric"><small>STAR structure</small><strong id="perfStar">—</strong><small>elements detected / 4</small></div>
+          <div class="performance-metric"><small>Average answer score</small><strong id="perfAnswerScore">—</strong><small>out of 5</small></div>
+          <div class="performance-metric"><small>Answer words</small><strong id="perfWords">0</strong><small>words analyzed</small></div>
+        </div>
+        <h3>Feedback and next steps</h3>
+        <ul class="performance-feedback" id="performanceFeedback"><li>Start a session, answer questions, and generate your report.</li></ul>
+       </section>
+      </section>
+      <section class="page-view" id="historyPage" data-view="history">
+       <div class="page-heading"><div><p class="eyebrow">Your practice sessions</p><h1>Interview history</h1><p>Search your account-owned interviews and open their details or reports.</p></div></div>
+       <section class="panel">
+        <div class="filter-row">
+         <input class="field" id="historySearch" type="search" placeholder="Search role or interview type" aria-label="Search interviews">
+         <select class="field" id="historySort" aria-label="Sort interviews"><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="score">Highest score</option></select>
+         <select class="field" id="historyFilter" aria-label="Filter interviews"><option value="all">All sessions</option><option value="completed">Completed</option><option value="incomplete">In progress</option></select>
+        </div>
+        <div id="historyResults"><div class="empty-state">Loading your interviews…</div></div>
+       </section>
+       <div id="historyDetail"></div>
+      </section>
+      <section class="page-view" id="profilePage" data-view="profile">
+       <div class="page-heading"><div><p class="eyebrow">Personal information</p><h1>My profile</h1><p>Keep your role, experience, and skills current for personalized practice.</p></div></div>
+       <section class="profile-hero"><div class="profile-avatar" id="profileAvatar" aria-hidden="true">—</div><div><h2 id="profileDisplayName" style="margin:0 0 5px;font-size:17px">Profile</h2><p id="profileDisplayEmail" class="muted" style="margin:0"></p></div></section>
+       <form id="profileForm" class="panel">
+        <div class="profile-fields">
+         <div><label for="profileName">Full name</label><input id="profileName" name="full_name" required minlength="2" maxlength="120"></div>
+         <div><label for="profileEmail">Registered email</label><input id="profileEmail" name="email" type="email" required maxlength="255"></div>
+         <div><label for="profileRole">Target job role</label><input id="profileRole" name="target_role" maxlength="120" placeholder="e.g. Backend Developer"></div>
+         <div><label for="profileExperience">Experience level</label><select id="profileExperience" name="experience_level"><option value="">Not specified</option><option>Entry-level</option><option>Early-career</option><option>Mid-level</option><option>Senior</option></select></div>
+         <div class="wide"><label for="profileSkills">Skills (comma-separated)</label><input id="profileSkills" name="skills" maxlength="1000" placeholder="Python, SQL, REST APIs"></div>
+         <div class="wide"><label for="profileIntroduction">Professional introduction</label><textarea id="profileIntroduction" name="introduction" maxlength="1000" placeholder="A short introduction about your professional focus"></textarea></div>
+         <div class="wide muted"><strong>Account created:</strong> <span id="profileCreated">—</span> · Read-only</div>
+        </div>
+        <div class="toolbar"><button class="btn" type="button" id="editProfileButton">Edit profile</button><button class="btn primary" type="submit" id="saveProfileButton" disabled>Save profile</button></div>
+        <p id="profileFeedback" class="muted" aria-live="polite"></p>
+       </form>
+      </section>
+      <section class="page-view" id="settingsPage" data-view="settings">
+       <div class="page-heading"><div><p class="eyebrow">Account preferences</p><h1>Settings</h1><p>Manage security, practice preferences, devices, and your data.</p></div></div>
+       <div class="settings-layout">
+        <section class="settings-section">
+         <h2>Account security</h2><p>Changing your password signs out other active sessions. Use at least 8 characters with uppercase, lowercase, and a number.</p>
+         <form id="passwordForm">
+          <label for="currentPassword">Current password</label><input id="currentPassword" type="password" autocomplete="current-password" required minlength="8">
+          <label for="newPassword" style="margin-top:12px">New password</label><input id="newPassword" type="password" autocomplete="new-password" required minlength="8">
+          <button class="btn primary" type="submit" style="margin-top:14px">Update password</button>
+         </form><p id="passwordFeedback" aria-live="polite"></p>
+        </section>
+        <section class="settings-section">
+         <h2>Application preferences</h2><p>These preferences are saved in this browser only.</p>
+         <label><input id="notifyPreference" type="checkbox"> Show report completion notifications</label>
+         <label style="margin-top:12px"><input id="reduceMotionPreference" type="checkbox"> Reduce interface motion</label>
+        </section>
+        <section class="settings-section">
+         <h2>Camera and microphone</h2><p>Camera and microphone permission is requested when you enable devices before an interview. Voice transcription depends on browser support and may use an online browser service. Use localhost or a trusted HTTPS origin.</p>
+         <button class="btn" type="button" data-page="start">Review interview device setup</button>
+        </section>
+        <section class="settings-section">
+         <h2>Data and privacy</h2><p>Interview answers, resumes, transcripts, and reports are saved in your local SQLite database. You can delete individual sessions in Interview History or remove your account and its associated interview data below.</p>
+         <button class="btn" type="button" data-page="history">Manage interview data</button>
+        </section>
+        <section class="settings-section danger-zone">
+         <h2>Delete account</h2><p>This permanently deletes your profile and account-owned interview sessions, transcripts, answers, resumes, and performance reports. This cannot be undone.</p>
+         <button class="btn danger" id="openDeleteAccount" type="button">Delete account…</button>
+        </section>
+       </div>
+      </section>
+      <dialog class="confirm-dialog" id="deleteAccountDialog" aria-labelledby="deleteAccountTitle">
+       <h2 id="deleteAccountTitle">Delete your account?</h2>
+       <p>Your profile and all account-owned interview data, including reports and resume text stored in the database, will be permanently deleted. Enter your password to confirm.</p>
+       <label for="deleteAccountPassword" class="fieldlabel">Password</label>
+       <input class="field" id="deleteAccountPassword" type="password" autocomplete="current-password" minlength="8" required>
+       <label style="display:flex;align-items:flex-start;gap:8px;margin-top:12px;color:#575e71;font-size:11px"><input type="checkbox" id="deleteAccountConfirmed"> I understand this action cannot be undone.</label>
+       <p id="deleteAccountFeedback" class="muted" aria-live="polite"></p>
+       <div class="toolbar"><button class="btn" id="cancelDeleteAccount" type="button">Cancel</button><button class="btn danger" id="confirmDeleteAccount" type="button">Permanently delete account</button></div>
+      </dialog>
+      <div class="footer">InterviewProAI · FastAPI + SQLite · Private local practice · No automatic system-audio capture</div>
+    </main>
+  </div>
+</div>
+<script>
+
+let sessionId = null;
+let recognition = null;
+let listening = false;
+let fullText = "";
+let wordCount = 0;
+let fillerCount = 0;
+let sessionStartedAt = null;
+let sessionEndedAt = null;
+let interviewQuestions = [];
+let aiQuestionIndex = -1;
+let currentAIQuestion = null;
+let interviewStarted = false;
+let interviewFinished = false;
+let sessionClosed = false;
+let sessionRequestPending = false;
+let recognitionWanted = false;
+let recognitionStartPending = false;
+let recognitionRetryTimer = null;
+let recognitionRetryCount = 0;
+let displayedInterimText = "";
+let recognitionErrorMessage = "";
+let questionRecords = [];
+let technologyCatalog = [];
+let resumeAnalysis = null;
+let selectedInterviewMode = null;
+let faceLandmarker = null;
+let faceLandmarkerPromise = null;
+let faceCoachFrame = null;
+let lastFaceSampleAt = 0;
+let faceCoachNudgedQuestion = -1;
+const facialCoachingNotes = new Set();
+
+let mediaStream = null;
+let audioContext = null;
+let analyser = null;
+let meterFrame = null;
+let currentUser = null;
+let interviewHistory = [];
+let currentPage = "dashboard";
+const $ = id => document.getElementById(id);
+function setStatus(s){$("status").textContent=s}
+function setFaceFeedback(message) {
+    $("faceFeedback").textContent = message;
+    const lower = message.toLowerCase();
+    $("faceFeedbackIcon").textContent = lower.includes("smile") ? "🙂"
+        : lower.includes("not visible") || lower.includes("center") ? "👀"
+        : lower.includes("loading") ? "⏳"
+        : lower.includes("error") || lower.includes("could not") ? "⚠️"
+        : "📷";
+    $("coachFaceMessage").textContent = message;
+}
+function updateSetupSummary() {
+    $("summaryRole").textContent = $("jobRole").value || "Not selected";
+    const type = $("interviewType").value;
+    $("summaryType").textContent = type === "hr" ? "HR" : type ? type[0].toUpperCase() + type.slice(1) : "Not selected";
+    $("summaryResume").textContent = resumeAnalysis ? "Analyzed" : $("resume").files.length ? "Uploaded · not analyzed" : "Not uploaded";
+}
+function resetSetupPreview(message) {
+    const video = $("setupCameraPreview");
+    video.srcObject = null;
+    video.style.display = "none";
+    $("setupCameraMessage").textContent = message;
+    $("setupCameraMessage").style.display = "block";
+}
+function stopInterviewDevices(message) {
+    stopRecognition();
+    stopFaceCoach(message);
+    if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
+        mediaStream = null;
+    }
+    $("cameraPreview").srcObject = null;
+    $("cameraPreview").style.display = "none";
+    $("cameraMessage").style.display = "block";
+    $("cameraMessage").textContent = "Interview complete. Devices are off.";
+    resetSetupPreview("Your camera preview will appear here when enabled.");
+    $("volumeFill").style.width = "0%";
+    $("volumeText").textContent = "Microphone not active.";
+    $("mediaStatus").textContent = "Interview complete. Camera and microphone have been turned off.";
+    $("listen").disabled = true;
+    $("enableMedia").disabled = false;
+    $("disableMedia").disabled = true;
+    $("faceCoachOptIn").disabled = true;
+    stopAudioMeter();
+    refreshDeviceGate();
+}
+function updateCompletionScreen() {
+    const answers = questionRecords.filter(record => record && record.answer.trim());
+    const scores = questionRecords
+        .map(record => Number(record?.feedback?.score))
+        .filter(score => Number.isFinite(score));
+    const average = scores.length ? (scores.reduce((sum, score) => sum + score, 0) / scores.length).toFixed(1) : null;
+    const reportScore = $("perfAnswerScore").textContent;
+    $("completionDuration").textContent = sessionStartedAt
+        ? formatDuration(Math.max(1, Math.floor(((sessionEndedAt || Date.now()) - sessionStartedAt) / 1000)))
+        : "—";
+    $("completionAnswered").textContent = `${answers.length} / ${interviewQuestions.length || "—"}`;
+    $("completionScore").textContent = reportScore !== "—" ? reportScore : average ? `${average}/5` : "Not available";
+
+    const messages = Array.from($("performanceFeedback").querySelectorAll("li"))
+        .map(item => item.textContent.trim())
+        .filter(text => text && !text.startsWith("Start a session") && !text.startsWith("Speak during your session"));
+    if (!messages.length) {
+        questionRecords.forEach(record => {
+            if (record?.feedback?.summary) messages.push(record.feedback.summary);
+        });
+    }
+    const feedback = $("completionFeedback");
+    feedback.replaceChildren();
+    if (!messages.length) {
+        const item = document.createElement("li");
+        item.textContent = "Your answer evaluations and feedback will be available here when an answer has been reviewed.";
+        feedback.append(item);
+    } else {
+        messages.slice(0, 3).forEach(message => {
+            const item = document.createElement("li");
+            item.textContent = message;
+            feedback.append(item);
+        });
+    }
+    $("completionReportButton").disabled = !fullText.trim() && !answers.length;
+}
+function showCompletionScreen() {
+    updateCompletionScreen();
+    $("completionScreen").hidden = false;
+    $("interviewSetupSection").hidden = true;
+    $("liveWorkspace").querySelector(".session-actions").hidden = true;
+    $("setupPanel").hidden = true;
+    $("completionNewInterview").focus();
+    updateStepIndicator(3);
+}
+function setDeviceReadiness(id, message, state) {
+    const item = $(id);
+    if (!item) return;
+    item.dataset.state = state;
+    item.lastElementChild.textContent = message;
+    item.setAttribute("aria-label", `${item.firstElementChild.textContent}: ${message}`);
+}
+function hasLiveCamera(){
+    return Boolean(mediaStream&&mediaStream.getVideoTracks().some(track=>track.readyState==="live"));
+}
+function hasLiveMicrophone(){
+    return Boolean(mediaStream&&mediaStream.getAudioTracks().some(track=>track.readyState==="live"));
+}
+function hasRequiredInterviewDevices(){
+    return hasLiveCamera()&&hasLiveMicrophone();
+}
+function refreshDeviceGate(){
+    const ready=hasRequiredInterviewDevices();
+    const startButton=$("newInterviewStart");
+    if(startButton){
+        startButton.disabled=!ready||sessionRequestPending||interviewStarted;
+        startButton.textContent=selectedInterviewMode==="technology"
+            ?"Start with selected technologies"
+            :"Start My Interview";
+    }
+    if(!interviewStarted){
+        const missing=[];
+        if(!hasLiveCamera())missing.push("camera");
+        if(!hasLiveMicrophone())missing.push("microphone");
+        $("deviceCheck").textContent=ready
+            ?"Camera and microphone are ready. Start your interview when you are ready."
+            :`Enable your ${missing.join(" and ")} before continuing to interview setup.`;
+    }
+}
+function deviceFailure(error) {
+    if (error?.name === "NotFoundError" || error?.name === "DevicesNotFoundError") {
+        return "Not detected";
+    }
+    if (error?.name === "NotAllowedError" || error?.name === "PermissionDeniedError" || error?.name === "SecurityError") {
+        return "Permission needed";
+    }
+    return "Unavailable";
+}
+function updateStepIndicator(activeStep) {
+    document.querySelectorAll(".step-indicator span").forEach((step, index) => {
+        step.classList.toggle("active", index + 1 === activeStep);
+        step.setAttribute("aria-current", index + 1 === activeStep ? "step" : "false");
+    });
+}
+function enableSessionUI(on) {
+    [
+        "listen", "stop", "export", "resume", "question", "getHint",
+        "analyzePerformance", "startAIInterview", "nextAIQuestion", "repeatAIQuestion",
+        "answerInput", "faceCoachOptIn", "speakAIQuestion", "stopSpeaking"
+    ].forEach(id => {
+        document.getElementById(id).disabled = !on;
+    });
+
+    document.getElementById("disableMedia").disabled = !on;
+    document.getElementById("enableMedia").disabled = false;
+    document.getElementById("analyzeResume").disabled = !on || !$("resume").files.length;
+    document.getElementById("speakAIQuestion").disabled = !on || !currentAIQuestion;
+    document.getElementById("stopSpeaking").disabled = true;
+    document.getElementById("getHint").disabled = !on || !sessionId || !currentAIQuestion || interviewFinished;
+}function esc(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+async function api(url, opts={}){
+    const r=await fetch(url,{cache:"no-store",...opts});
+    let d;try{d=await r.json()}catch{d={}}
+    if(!r.ok){
+        const detail=Array.isArray(d.detail)?d.detail.map(item=>item.msg).join(" "):d.detail;
+        if(r.status===401){window.location.replace("/login?expired=1");throw new Error("Authentication required")}
+        throw new Error(detail||"Request failed");
+    }
+    return d;
+}
+const pageLabels={dashboard:"Dashboard",start:"Start Interview",history:"Interview History",reports:"Performance Reports",profile:"My Profile",settings:"Settings"};
+function showPage(name,updateHash=true){
+    if(!pageLabels[name])name="dashboard";
+    currentPage=name;
+    document.querySelectorAll(".page-view").forEach(view=>view.classList.toggle("active",view.dataset.view===name));
+    document.querySelectorAll(".sidebar-nav a[data-page]").forEach(link=>{
+        const active=link.dataset.page===name;
+        link.classList.toggle("active",active);
+        if(active)link.setAttribute("aria-current","page");
+        else link.removeAttribute("aria-current");
+    });
+    $("pageTitle").textContent=pageLabels[name];
+    if(updateHash)history.replaceState(null,"",`#${name}`);
+    if(name==="history")renderHistory();
+    if(name==="reports")renderReports();
+    if(name==="dashboard")renderDashboard();
+}
+document.querySelectorAll("[data-page]").forEach(link=>link.addEventListener("click",event=>{
+    event.preventDefault();
+    showPage(link.dataset.page);
+}));
+async function logout(){
+    $("logoutButton").disabled=true;
+    try{await api("/api/auth/logout",{method:"POST"});window.location.replace("/login");}
+    catch(error){setStatus("Logout failed: "+error.message);$("logoutButton").disabled=false;}
+}
+$("logoutButton").addEventListener("click",logout);
+window.addEventListener("pageshow",event=>{
+    if(!event.persisted)return;
+    document.body.classList.remove("authenticated");
+    $("authLoading").textContent="Checking your InterviewProAI session…";
+    fetch("/api/auth/me",{cache:"no-store"}).then(response=>{
+        if(!response.ok){window.location.replace("/login?expired=1");return}
+        document.body.classList.add("authenticated");
+    }).catch(()=>{
+        $("authLoading").textContent="Unable to verify your session. Refresh the page to try again.";
+    });
+});
+function formatDate(value){
+    if(!value)return "—";
+    const date=new Date(value);
+    return Number.isNaN(date.getTime())?"—":date.toLocaleString();
+}
+function formatDuration(seconds){
+    if(!Number.isFinite(seconds)||seconds<=0)return "—";
+    const minutes=Math.floor(seconds/60),remaining=seconds%60;
+    return minutes?`${minutes}m ${remaining}s`:`${remaining}s`;
+}
+function emptyState(text){
+    const div=document.createElement("div");
+    div.className="empty-state";
+    div.textContent=text;
+    return div;
+}
+function button(text,className,onClick){
+    const el=document.createElement("button");
+    el.type="button";el.className=className;el.textContent=text;el.addEventListener("click",onClick);
+    return el;
+}
+function renderTrend(containerId,emptyId,points){
+    const container=$(containerId),empty=$(emptyId);
+    container.replaceChildren();
+    const reports=points.filter(point=>point.score!==null&&point.score!==undefined&&Number.isFinite(Number(point.score)));
+    if(!reports.length){empty.hidden=false;return;}
+    empty.hidden=true;
+    reports.slice(-10).forEach(point=>{
+        const score=Number(point.score);
+        const height=Math.max(4,Math.min(100,score/5*100));
+        const date=new Date(point.date);
+        const label=Number.isNaN(date.getTime())?"Interview":date.toLocaleDateString(undefined,{month:"short",day:"numeric"});
+        const bar=document.createElement("div");bar.className="chart-bar";bar.setAttribute("role","img");bar.setAttribute("aria-label",`${label}: ${score.toFixed(1)} out of 5`);bar.title=`${label}: ${score.toFixed(1)} out of 5`;bar.style.setProperty("--bar-height",`${height}%`);
+        const fill=document.createElement("i");fill.style.height=`${height}%`;
+        const value=document.createElement("strong");value.textContent=score.toFixed(1);
+        const dateLabel=document.createElement("span");dateLabel.textContent=label;
+        bar.append(fill,value,dateLabel);container.append(bar);
+    });
+}
+function updateInterviewProgress() {
+    const total = interviewQuestions.length;
+    const scored = questionRecords
+        .map((record, index) => ({record, index}))
+        .filter(({record}) => record && Number.isFinite(Number(record.feedback?.score)));
+    const completed = scored.length;
+    const remaining = Math.max(0, total - completed);
+    const percentage = total ? Math.round(completed / total * 100) : 0;
+    const currentQuestion = currentAIQuestion ? aiQuestionIndex + 1 : (interviewFinished ? total : null);
+
+    $("progressCompleted").textContent = `${completed} completed`;
+    $("progressRemaining").textContent = String(remaining);
+    $("progressTotal").textContent = `of ${total} question${total === 1 ? "" : "s"}`;
+    $("progressCurrent").textContent = currentQuestion ? `Question ${currentQuestion}` : "Question —";
+    $("progressPercent").textContent = `${percentage}%`;
+    $("progressCompletedFill").style.width = `${total ? completed / total * 100 : 0}%`;
+    $("progressRemainingFill").style.width = `${total ? remaining / total * 100 : 0}%`;
+    $("interviewProgressFill").style.width = `${percentage}%`;
+    $("interviewProgressBar").setAttribute("aria-valuenow", String(percentage));
+    $("questionNumber").textContent = currentQuestion
+        ? `Question ${currentQuestion} of ${total}`
+        : interviewFinished ? "Interview complete" : "Question —";
+    $("questionCategory").textContent = currentAIQuestion?.category || (interviewFinished ? "Results ready" : "Interview question");
+    $("questionScoreChart").replaceChildren();
+    $("questionScoreEmpty").hidden = scored.length > 0;
+
+    scored.forEach(({record, index}) => {
+        const score = Number(record.feedback.score);
+        const row = document.createElement("div");
+        row.className = "score-row";
+        const label = document.createElement("span");
+        label.textContent = `Question ${index + 1}`;
+        const track = document.createElement("span");
+        track.className = "score-track";
+        track.setAttribute("role", "img");
+        track.setAttribute("aria-label", `Score ${score} out of 5`);
+        const fill = document.createElement("i");
+        fill.style.width = `${Math.max(0, Math.min(5, score)) * 20}%`;
+        track.append(fill);
+        const value = document.createElement("strong");
+        value.textContent = `${score}/5`;
+        row.append(label, track, value);
+        $("questionScoreChart").append(row);
+    });
+}
+function renderRecommendations(){
+    const box=$("dashboardRecommendations");box.replaceChildren();
+    const recommendations=[];
+    for(const report of (currentUser?.performance_reports||[]).slice(0,3)){
+        for(const item of report.feedback?.feedback||[]){
+            if(typeof item==="string"&&!recommendations.includes(item))recommendations.push(item);
+        }
+    }
+    if(!recommendations.length){
+        box.append(emptyState("Complete an interview and save a report to get recommendations grounded in your own feedback."));
+        return;
+    }
+    recommendations.slice(0,4).forEach(text=>{
+        const item=document.createElement("div");item.className="recommendation";item.textContent=text;box.append(item);
+    });
+}
+function sessionTable(rows,withActions=true){
+    if(!rows.length)return emptyState("No interviews match these filters.");
+    const wrap=document.createElement("div");wrap.className="data-table-wrap";
+    const table=document.createElement("table");table.className="data-table";
+    const head=document.createElement("thead"),headRow=document.createElement("tr");
+    ["Date","Role","Type","Duration","Score","Status",...(withActions?["Actions"]:[])].forEach(text=>{
+        const th=document.createElement("th");th.textContent=text;headRow.append(th);
+    });
+    head.append(headRow);table.append(head);
+    const body=document.createElement("tbody");
+    rows.forEach(item=>{
+        const row=document.createElement("tr");
+        [formatDate(item.started_at),item.target_role||item.title||"Interview practice",item.interview_type==="hr"?"HR":(item.interview_type||"—").replace(/^\w/,letter=>letter.toUpperCase()),
+         formatDuration(item.duration_seconds),item.score==null?"—":`${item.score}/5`,
+         item.ended_at?"Completed":"In progress"].forEach(value=>{const td=document.createElement("td");td.textContent=value;row.append(td);});
+        if(withActions){
+            const actions=document.createElement("td");
+            actions.append(button("Details","btn",()=>showSessionDetails(item.id,"historyDetail")));
+            actions.append(button("Report","btn",()=>openReport(item.id,"historyDetail")));
+            actions.append(button("Delete","btn danger",()=>deleteInterview(item.id)));
+            row.append(actions);
+        }
+        body.append(row);
+    });
+    table.append(body);wrap.append(table);return wrap;
+}
+function renderDashboard(){
+    if(!currentUser)return;
+    $("welcomeTitle").textContent=`Welcome back, ${currentUser.full_name.split(/\s+/)[0]}`;
+    $("dashboardCompleted").textContent=String(currentUser.completed_interviews||0);
+    $("dashboardTotal").textContent=String(currentUser.total_interviews||0);
+    $("dashboardScore").textContent=currentUser.average_performance_score==null?"—":`${currentUser.average_performance_score}/5`;
+    renderTrend("dashboardTrend","dashboardTrendEmpty",currentUser.score_trend||[]);
+    renderRecommendations();
+    const recent=currentUser.recent_sessions||[];
+    $("dashboardRecent").replaceChildren(recent.length?sessionTable(recent.slice(0,5),true):emptyState("No practice sessions yet. Start an interview to see your progress here."));
+}
+function renderHistory(){
+    const search=$("historySearch").value.trim().toLowerCase();
+    const filter=$("historyFilter").value,sort=$("historySort").value;
+    let rows=interviewHistory.filter(item=>{
+        const matches=`${item.target_role||item.title} ${item.interview_type||""}`.toLowerCase().includes(search);
+        return matches&&(filter==="all"||(filter==="completed"?Boolean(item.ended_at):!item.ended_at));
+    });
+    rows=[...rows].sort((a,b)=>{
+        if(sort==="score")return (b.score??-1)-(a.score??-1);
+        const order=new Date(a.started_at)-new Date(b.started_at);
+        return sort==="oldest"?order:-order;
+    });
+    const emptyMessage=interviewHistory.length===0
+        ?"No interviews yet. Start an interview to build your practice history."
+        :"No interviews match these filters.";
+    $("historyResults").replaceChildren(rows.length?sessionTable(rows):emptyState(emptyMessage));
+}
+function renderReports(){
+    const reports=currentUser?.performance_reports||[];
+    renderTrend("reportTrend","reportTrendEmpty",currentUser?.score_trend||[]);
+    const list=$("savedReports");list.replaceChildren();
+    if(!reports.length){list.append(emptyState("No performance reports yet. Complete a practice interview and generate a report to review your results."));return;}
+    reports.forEach(report=>{
+        const row=document.createElement("div");row.className="report-row";
+        const copy=document.createElement("div");
+        const title=document.createElement("strong");title.textContent=report.target_role||"Interview report";
+        const meta=document.createElement("p");meta.className="muted";meta.textContent=`${formatDate(report.created_at)} · ${report.feedback?.average_answer_score==null?"No answer score":`Average ${report.feedback.average_answer_score}/5`}`;
+        copy.append(title,meta);
+        row.append(copy,button("View report","btn primary",()=>openReport(report.session_id,"reportDetail")));
+        list.append(row);
+    });
+}
+async function openReport(sessionIdValue,targetId){
+    const target=$(targetId);target.replaceChildren(emptyState("Loading report…"));
+    if(targetId==="reportDetail")showPage("reports");
+    try{
+        const result=await api(`/api/sessions/${sessionIdValue}/report`);
+        target.replaceChildren();
+        if(!result.report){target.append(emptyState("No saved performance report for this interview."));return;}
+        const report=result.report;
+        const card=document.createElement("section");card.className="panel";
+        const title=document.createElement("h2");title.textContent=`Interview report · ${report.average_answer_score==null?"Score not available":`${report.average_answer_score}/5`}`;
+        card.append(title);
+        const metricText=`${report.interview_question_count||0} evaluated answers · ${report.word_count||0} words · ${report.star_score}/4 STAR signals`;
+        const meta=document.createElement("p");meta.className="muted";meta.textContent=metricText;card.append(meta);
+        for(const feedback of report.feedback||[]){const p=document.createElement("p");p.className="recommendation";p.textContent=feedback;card.append(p);}
+        for(const answer of result.answers||[]){
+            const item=document.createElement("article");item.className="answer-review";
+            const heading=document.createElement("h3");heading.textContent=`${answer.question_index+1}. ${answer.category} · ${answer.feedback.score}/5`;
+            const question=document.createElement("p");question.textContent=answer.question;
+            const summary=document.createElement("p");summary.textContent=answer.feedback.summary;
+            const strengths=document.createElement("p");strengths.textContent=`Strengths: ${(answer.feedback.strengths||[]).join("; ")||"Not recorded"}`;
+            const improvements=document.createElement("p");improvements.textContent=`Suggestions: ${(answer.feedback.improvements||[]).join("; ")||"No specific suggestions recorded"}`;
+            item.append(heading,question,summary,strengths,improvements);card.append(item);
+        }
+        target.append(card);
+    }catch(error){target.replaceChildren(emptyState("Could not load the report: "+error.message));}
+}
+async function showSessionDetails(id,targetId="historyDetail"){
+    const target=$(targetId);target.replaceChildren(emptyState("Loading interview details…"));
+    try{
+        const session=await api(`/api/sessions/${id}`);
+        const card=document.createElement("section");card.className="panel";
+        const title=document.createElement("h2");title.textContent=session.target_role||session.title||"Interview details";
+        const meta=document.createElement("p");meta.className="muted";meta.textContent=`${formatDate(session.started_at)} · ${session.interview_type||"Interview"} · ${session.interview_answers.length} answers`;
+        const close=button("Close","btn",()=>target.replaceChildren());
+        card.append(title,meta,close);
+        session.interview_answers.forEach(answer=>{
+            const block=document.createElement("article");block.className="answer-review";
+            const h=document.createElement("h3");h.textContent=`${answer.category}: ${answer.question}`;
+            const p=document.createElement("p");p.textContent=answer.answer||"No answer captured";
+            block.append(h,p);card.append(block);
+        });
+        target.replaceChildren(card);
+    }catch(error){target.replaceChildren(emptyState("Could not load interview details: "+error.message));}
+}
+async function deleteInterview(id){
+    if(!window.confirm("Delete this interview and its saved transcript, answers, and report? This cannot be undone."))return;
+    try{
+        await api(`/api/sessions/${id}`,{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({confirmation:true})});
+        await loadWorkspaceData();setStatus("Interview deleted");
+    }catch(error){setStatus("Could not delete interview: "+error.message);}
+}
+async function loadWorkspaceData(){
+    const [user,history,overview]=await Promise.all([api("/api/auth/me"),api("/api/sessions"),api("/api/dashboard")]);
+    currentUser={...user,...overview};interviewHistory=history.sessions||[];
+    $("topbarUser").textContent=user.full_name;
+    $("sidebarUser").textContent=user.full_name;
+    $("profileAvatar").textContent=user.full_name.split(/\s+/).slice(0,2).map(part=>part[0]||"").join("").toUpperCase();
+    $("profileDisplayName").textContent=user.full_name;$("profileDisplayEmail").textContent=user.email;
+    $("profileName").value=user.full_name;$("profileEmail").value=user.email;
+    $("profileRole").value=user.target_role||"";$("profileExperience").value=user.experience_level||"";
+    $("profileSkills").value=user.skills||"";$("profileIntroduction").value=user.introduction||"";
+    $("profileCreated").textContent=formatDate(user.created_at);
+    setProfileEditable(false);
+    if(user.target_role&&!Array.from($("jobRole").options).some(option=>option.value===user.target_role)){
+        const option=document.createElement("option");option.value=user.target_role;option.textContent=user.target_role;$("jobRole").append(option);
+    }
+    $("jobRole").value=user.target_role||"Software Engineer";
+    $("experienceLevel").value=user.experience_level||"";
+    updateSetupSummary();
+    renderDashboard();
+    if(currentPage==="history")renderHistory();
+    if(currentPage==="reports")renderReports();
+}
+$("profileForm").addEventListener("submit",async event=>{
+    event.preventDefault();
+    const buttonElement=$("saveProfileButton");
+    buttonElement.disabled=true;$("profileFeedback").textContent="Saving profile…";
+    try{
+        const result=await api("/api/auth/me",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+            full_name:$("profileName").value.trim(),email:$("profileEmail").value.trim(),
+            target_role:$("profileRole").value.trim(),experience_level:$("profileExperience").value,
+            skills:$("profileSkills").value.trim(),introduction:$("profileIntroduction").value.trim()
+        })});
+        await loadWorkspaceData();setProfileEditable(false);$("profileFeedback").textContent=result.message;
+    }catch(error){$("profileFeedback").textContent=error.message;}
+    finally{buttonElement.disabled=$("profileName").disabled;}
+});
+function setProfileEditable(editable){
+    ["profileName","profileEmail","profileRole","profileExperience","profileSkills","profileIntroduction"].forEach(id=>$(id).disabled=!editable);
+    $("saveProfileButton").disabled=!editable;
+    $("editProfileButton").textContent=editable?"Cancel editing":"Edit profile";
+}
+$("editProfileButton").addEventListener("click",()=>{
+    const editing=$("profileName").disabled;
+    if(!editing){
+        if(currentUser){
+            $("profileName").value=currentUser.full_name;$("profileEmail").value=currentUser.email;
+            $("profileRole").value=currentUser.target_role||"";$("profileExperience").value=currentUser.experience_level||"";
+            $("profileSkills").value=currentUser.skills||"";$("profileIntroduction").value=currentUser.introduction||"";
+        }
+    }
+    setProfileEditable(editing);
+    if(editing)$("profileName").focus();
+});
+["historySearch","historySort","historyFilter"].forEach(id=>$(id).addEventListener("input",renderHistory));
+["historySort","historyFilter"].forEach(id=>$(id).addEventListener("change",renderHistory));
+$("passwordForm").addEventListener("submit",async event=>{
+    event.preventDefault();const buttonElement=$("passwordForm").querySelector('button[type="submit"]');
+    buttonElement.disabled=true;$("passwordFeedback").textContent="Updating password…";
+    try{
+        const result=await api("/api/auth/password",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({current_password:$("currentPassword").value,new_password:$("newPassword").value})});
+        $("passwordFeedback").textContent=result.message;$("passwordForm").reset();
+    }catch(error){$("passwordFeedback").textContent=error.message;}
+    finally{buttonElement.disabled=false;}
+});
+$("openDeleteAccount").addEventListener("click",()=>$("deleteAccountDialog").showModal());
+$("cancelDeleteAccount").addEventListener("click",()=>$("deleteAccountDialog").close());
+$("confirmDeleteAccount").addEventListener("click",async()=>{
+    if(!$("deleteAccountConfirmed").checked){$("deleteAccountFeedback").textContent="Confirm that you understand the account and interview data will be permanently deleted.";return;}
+    const buttonElement=$("confirmDeleteAccount");buttonElement.disabled=true;$("deleteAccountFeedback").textContent="Deleting account and interview data…";
+    try{
+        await api("/api/auth/me",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({password:$("deleteAccountPassword").value,confirmation:true})});
+        window.location.replace("/login");
+    }catch(error){$("deleteAccountFeedback").textContent=error.message;buttonElement.disabled=false;}
+});
+function loadPreferences(){
+    $("notifyPreference").checked=localStorage.getItem("interviewproai.notifications")!=="false";
+    $("reduceMotionPreference").checked=localStorage.getItem("interviewproai.reduceMotion")==="true";
+    document.body.classList.toggle("reduce-motion",$("reduceMotionPreference").checked);
+}
+$("notifyPreference").addEventListener("change",()=>localStorage.setItem("interviewproai.notifications",String($("notifyPreference").checked)));
+$("reduceMotionPreference").addEventListener("change",()=>{
+    localStorage.setItem("interviewproai.reduceMotion",String($("reduceMotionPreference").checked));
+    document.body.classList.toggle("reduce-motion",$("reduceMotionPreference").checked);
+});
+loadPreferences();
+function updateTranscript(text){fullText += (fullText?"\n":"")+text;if(interviewStarted&&currentAIQuestion&&!interviewFinished)$("answerInput").value += ($("answerInput").value?" ":"")+text;$("transcript").textContent=fullText;$("transcript").scrollTop=$("transcript").scrollHeight;const words=fullText.match(/\b[\w']+\b/g)||[];wordCount=words.length;$("words").textContent=wordCount;const fs=(fullText.toLowerCase().match(/\b(um|uh|erm|like|basically|actually|literally)\b/g)||[]);fillerCount=fs.length;$("fillers").textContent=fillerCount;const density=fillerCount/Math.max(wordCount,1);if(wordCount>0&&density>.07){$("delivery").textContent="Pause";$("delivery").style.color="#ffbe67";$("deliverySub").textContent="Filler words are frequent"}else{$("delivery").textContent="Clear";$("delivery").style.color="#a9f0c2";$("deliverySub").textContent="Keep a steady pace"}}
+function addHint(text,type="info"){const box=$("hintList");if(box.querySelector(".empty"))box.innerHTML="";const div=document.createElement("div");div.className="hintitem "+(type==="filler"?"filler":"");div.textContent=text;box.prepend(div);while(box.children.length>12)box.lastChild.remove();$("coachSpeakingMessage").textContent=text}
+
+$("newSession").addEventListener("click",()=>showPage("start"));
+$("newInterviewStart").addEventListener("click",createInterviewSession);
+$("cancelInterview").addEventListener("click",()=>showPage("dashboard"));
+$("setupEnableMedia").addEventListener("click",()=>mediaButton.click());
+$("setupDisableMedia").addEventListener("click",()=>disableMediaButton.click());
+$("completionReportButton").addEventListener("click",generatePerformanceReport);
+$("completionNewInterview").addEventListener("click",createInterviewSession);
+$("completionViewReports").addEventListener("click",()=>showPage("reports"));
+["jobRole","interviewType"].forEach(id=>$(id).addEventListener("change",updateSetupSummary));
+async function createInterviewSession() {
+    if (sessionRequestPending) return;
+    if (sessionId && !sessionClosed) {
+        startInterviewSetup();
+        return;
+    }
+    if (!hasRequiredInterviewDevices()) {
+        $("setupPanel").hidden = false;
+        $("liveWorkspace").hidden = true;
+        $("completionScreen").hidden = true;
+        $("setupEnableMedia").disabled = false;
+        $("currentSessionNotice").textContent = "Enable both your camera and microphone before starting the interview.";
+        refreshDeviceGate();
+        $("setupEnableMedia").focus();
+        return;
+    }
+
+    sessionId = null;
+    sessionClosed = false;
+    $("setupPanel").hidden = false;
+    $("liveWorkspace").hidden = true;
+    $("completionScreen").hidden = true;
+    $("interviewSetupSection").hidden = false;
+    $("liveWorkspace").querySelector(".session-actions").hidden = false;
+    $("setupEnableMedia").disabled = true;
+    updateStepIndicator(1);
+    $("newInterviewStart").disabled = true;
+    $("newInterviewStart").textContent = "Preparing...";
+    sessionRequestPending = true;
+    // Device access is established before session creation; this request does not ask for media.
+    try {
+        setStatus("Starting session...");
+
+        const d = await api("/api/sessions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                title: "Interview practice"
+            })
+        });
+
+        sessionId = d.id;
+        sessionStartedAt = Date.now();
+        sessionEndedAt = null;
+
+        fullText = "";
+        wordCount = 0;
+        fillerCount = 0;
+        displayedInterimText = "";
+        recognitionErrorMessage = "";
+        interviewQuestions = [];
+        aiQuestionIndex = -1;
+        currentAIQuestion = null;
+        interviewStarted = false;
+        interviewFinished = false;
+        questionRecords = [];
+        updateInterviewProgress();
+        resumeAnalysis = null;
+        selectedInterviewMode = null;
+        $("startAIInterview").textContent = "Start interview setup";
+        facialCoachingNotes.clear();
+        $("faceCoachOptIn").checked = false;
+        stopSpeaking();
+        stopFaceCoach("Facial feedback is off. Enable the setting and camera to use live presentation tips.");
+
+        $("words").textContent = "0";
+        $("fillers").textContent = "0";
+        $("delivery").textContent = "Ready";
+        $("deliverySub").textContent = "Start speaking";
+
+        $("transcript").textContent =
+            "Your recognized speech will appear here.";
+
+        $("latestHint").textContent =
+            "Enter an interview question to get answer hints.";
+        $("answerInput").value = "";
+        $("answerFeedback").textContent = "Answer feedback will appear after each question.";
+        $("aiQuestion").textContent = "Choose a question source to begin your interview.";
+        $("interviewProgress").textContent = "Not started";
+        $("questionNumber").textContent = "Question —";
+        $("questionCategory").textContent = "Interview question";
+        setFaceFeedback("Facial feedback is off. Enable the setting and camera to use live presentation tips.");
+        $("speakAIQuestion").disabled = true;
+        $("stopSpeaking").disabled = true;
+        $("resumeAnalysis").textContent = "Upload and analyze a resume to see the extracted profile.";
+        $("resumeStatus").textContent = "Upload a resume, then analyze it to personalize your interview.";
+        $("resume").value = "";
+        $("analyzeResume").disabled = true;
+        setDeviceReadiness("resumeReadiness", "Not uploaded", "pending");
+        setDeviceReadiness(
+            "cameraReadiness",
+            mediaStream?.getVideoTracks().some(track => track.readyState === "live") ? "Ready" : "Permission needed",
+            mediaStream?.getVideoTracks().some(track => track.readyState === "live") ? "ready" : "pending"
+        );
+        setDeviceReadiness(
+            "microphoneReadiness",
+            mediaStream?.getAudioTracks().some(track => track.readyState === "live") ? "Ready" : "Permission needed",
+            mediaStream?.getAudioTracks().some(track => track.readyState === "live") ? "ready" : "pending"
+        );
+
+        $("perfWpm").textContent = "—";
+        $("perfFiller").textContent = "—";
+        $("perfFillerCount").textContent = "Not analyzed";
+        $("perfStar").textContent = "—";
+        $("perfAnswerScore").textContent = "—";
+        $("perfWords").textContent = "0";
+
+        $("performanceFeedback").innerHTML =
+            "<li>Speak during your session, then analyze your performance.</li>";
+
+        $("sessionTag").textContent = "Session #" + sessionId;
+
+        enableSessionUI(true);
+        $("disableMedia").disabled = !mediaStream || !mediaStream.getTracks().some(track => track.readyState === "live");
+        // Listening is enabled only after the microphone has been granted and opened.
+        $("listen").disabled = true;
+        $("nextAIQuestion").disabled = true;
+        $("repeatAIQuestion").disabled = true;
+        $("answerInput").disabled = true;
+        $("speakAIQuestion").disabled = true;
+        $("stopSpeaking").disabled = true;
+        $("currentSessionNotice").textContent = `Session #${sessionId} is ready. Choose how you would like to get your interview questions.`;
+
+        setStatus("Session active");
+        $("startAIInterview").disabled = false;
+        $("newInterviewStart").disabled = false;
+        $("newInterviewStart").textContent = "Start My Interview";
+        $("setupEnableMedia").disabled = false;
+        $("setupDisableMedia").disabled = !mediaStream?.getTracks().some(track => track.readyState === "live");
+        $("mediaStatus").textContent = mediaStream?.getTracks().some(track => track.readyState === "live")
+            ? "Your camera and microphone are ready."
+            : "Session active. Enable your camera or microphone whenever you are ready.";
+        if(!mediaStream?.getVideoTracks().some(track => track.readyState === "live")){
+            $("cameraMessage").textContent = "Camera is off. Turn it on whenever you are ready.";
+        }
+        $("coachSpeakingMessage").textContent = "Pacing feedback will appear here when available.";
+        $("hintList").replaceChildren(emptyState("Pacing and filler-word feedback will appear here."));
+        updateSetupSummary();
+        startInterviewSetup();
+
+    } catch (error) {
+        if (mediaStream) {
+            mediaStream.getTracks().forEach(track => track.stop());
+            mediaStream = null;
+        }
+        stopAudioMeter();
+        resetSetupPreview("Your camera preview will appear here when enabled.");
+        setDeviceReadiness("cameraReadiness", "Permission needed", "pending");
+        setDeviceReadiness("microphoneReadiness", "Permission needed", "pending");
+        $("newInterviewStart").disabled = false;
+        $("newInterviewStart").textContent = "Start My Interview";
+        $("setupEnableMedia").disabled = false;
+        $("setupDisableMedia").disabled = true;
+        setStatus("Session start failed");
+        $("currentSessionNotice").textContent = "Could not create session: " + error.message;
+    } finally {
+        sessionRequestPending = false;
+        refreshDeviceGate();
+    }
+}
+
+async function saveChunk(text){if(!sessionId||!text.trim())return;try{const d=await api(`/api/sessions/${sessionId}/transcript`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text,speaker:"You"})});d.pacing.feedback.forEach(f=>addHint(f.text,f.type));}catch(e){setStatus("Save error: "+e.message)}}
+function clearRecognitionRetry(){
+    if(recognitionRetryTimer!==null){
+        clearTimeout(recognitionRetryTimer);
+        recognitionRetryTimer=null;
+    }
+}
+function stopRecognition(){
+    const wasStarting=recognitionStartPending;
+    recognitionWanted=false;
+    recognitionStartPending=false;
+    clearRecognitionRetry();
+    if(recognition&&(listening||wasStarting)){
+        try{
+            if(wasStarting&&!listening)recognition.abort();
+            else recognition.stop();
+        }
+        catch(error){console.warn("Could not stop speech recognition cleanly.",error);}
+    }
+}
+function scheduleRecognitionRestart(){
+    clearRecognitionRetry();
+    if(!recognitionWanted||!hasLiveMicrophone())return;
+    const delay=Math.min(250*2**Math.min(recognitionRetryCount,4),4000);
+    recognitionRetryCount++;
+    recognitionRetryTimer=setTimeout(()=>{
+        recognitionRetryTimer=null;
+        if(!recognitionWanted||!hasLiveMicrophone())return;
+        try{
+            recognitionStartPending=true;
+            recognition.start();
+        }catch(error){
+            recognitionStartPending=false;
+            if(error.name==="InvalidStateError"){
+                scheduleRecognitionRestart();
+                return;
+            }
+            $("mediaStatus").textContent="Speech recognition could not restart: "+error.message+". Use Start listening to retry.";
+            $("listen").disabled=false;
+            $("listen").textContent="🎙 Retry listening";
+            setStatus("Speech recognition needs attention");
+        }
+    },delay);
+}
+function startListening(){
+    if(!hasLiveMicrophone()){
+        $("mediaStatus").textContent="Enable the microphone to answer by voice. You can also type your answer.";
+        return false;
+    }
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){
+        $("mediaStatus").textContent="Speech recognition is unavailable in this browser. Try current Chrome or Edge, or type your answer.";
+        return false;
+    }
+    if(listening||recognitionStartPending)return true;
+    clearRecognitionRetry();
+    recognitionWanted=true;
+    recognitionRetryCount=0;
+    recognitionErrorMessage="";
+    if(!recognition){
+        recognition=new SR();
+        recognition.continuous=true;
+        recognition.interimResults=true;
+        recognition.lang=navigator.language||"en-IN";
+        recognition.onstart=()=>{
+            listening=true;
+            recognitionStartPending=false;
+            recognitionRetryCount=0;
+            $("listen").textContent="Listening…";
+            $("listen").disabled=true;
+            $("stop").disabled=false;
+            $("mediaStatus").textContent="Speech recognition is listening. Speak naturally; your words will appear here.";
+            setStatus("Speech recognition active");
+        };
+        recognition.onresult=ev=>{
+            let interim="",finals="";
+            for(let i=ev.resultIndex;i<ev.results.length;i++){
+                const text=ev.results[i][0].transcript;
+                if(ev.results[i].isFinal)finals+=text+" ";
+                else interim+=text;
+            }
+            if(finals.trim()){
+                if(displayedInterimText&&interviewStarted&&currentAIQuestion&&!interviewFinished){
+                    const answer=$("answerInput").value;
+                    if(answer.endsWith(displayedInterimText)){
+                        $("answerInput").value=answer.slice(0,-displayedInterimText.length);
+                    }
+                }
+                displayedInterimText="";
+                updateTranscript(finals.trim());
+                saveChunk(finals.trim());
+            }
+            if(interim){
+                $("transcript").textContent=fullText+(fullText?"\n":"")+"… "+interim;
+                $("transcript").scrollTop=$("transcript").scrollHeight;
+                if(interviewStarted&&currentAIQuestion&&!interviewFinished){
+                    if(displayedInterimText){
+                        const answer=$("answerInput").value;
+                        if(answer.endsWith(displayedInterimText)){
+                            $("answerInput").value=answer.slice(0,-displayedInterimText.length);
+                        }
+                    }
+                    $("answerInput").value+=$("answerInput").value?" "+interim:interim;
+                    displayedInterimText=interim;
+                }
+            }else if(!fullText){
+                $("transcript").textContent="Listening… your recognized words will appear here.";
+            }
+        };
+        recognition.onerror=event=>{
+            recognitionStartPending=false;
+            const messages={
+                "no-speech":"No speech detected yet. Keep speaking; listening will resume automatically.",
+                "audio-capture":"Speech recognition cannot access the microphone. Check browser permissions and selected input device.",
+                "not-allowed":"Speech recognition permission was denied. Allow microphone access for this site, then retry.",
+                "service-not-allowed":"The browser speech service is blocked. Try current Chrome or Edge, or type your answer.",
+                "network":"The browser speech service could not connect. Check your internet connection, then retry or type your answer.",
+                "language-not-supported":"This browser does not support the selected recognition language.",
+                "aborted":"Speech recognition stopped."
+            };
+            const message=messages[event.error]||`Speech recognition error: ${event.error}. Retry listening or type your answer.`;
+            recognitionErrorMessage=message;
+            $("mediaStatus").textContent=message;
+            setStatus(event.error==="no-speech"?"Listening for speech":"Speech recognition needs attention");
+            if(["not-allowed","service-not-allowed","audio-capture","network","language-not-supported"].includes(event.error)){
+                recognitionWanted=false;
+                clearRecognitionRetry();
+            }
+        };
+        recognition.onend=()=>{
+            listening=false;
+            recognitionStartPending=false;
+            if(recognitionWanted&&hasLiveMicrophone()){
+                $("listen").textContent="Reconnecting…";
+                $("listen").disabled=true;
+                $("mediaStatus").textContent="Speech recognition paused. Reconnecting…";
+                scheduleRecognitionRestart();
+                return;
+            }
+            $("listen").textContent=hasLiveMicrophone()?"🎙 Start listening":"🎙 Start listening";
+            $("listen").disabled=!hasLiveMicrophone();
+            if(!recognitionWanted&&hasLiveMicrophone()&&!recognitionErrorMessage){
+                $("mediaStatus").textContent="Speech recognition is stopped. Start listening to continue voice input.";
+                setStatus("Microphone ready");
+            }
+        };
+    }
+    try{
+        recognitionStartPending=true;
+        $("listen").disabled=true;
+        $("listen").textContent="Connecting…";
+        $("mediaStatus").textContent="Connecting to browser speech recognition…";
+        recognition.start();
+        return true;
+    }catch(error){
+        recognitionStartPending=false;
+        recognitionWanted=false;
+        $("listen").disabled=false;
+        $("listen").textContent="🎙 Retry listening";
+        $("mediaStatus").textContent="Could not start speech recognition: "+error.message;
+        setStatus("Speech recognition needs attention");
+        return false;
+    }
+}
+$("listen").onclick=startListening;
+
+$("stop").onclick = async () => {
+    if (!window.confirm("End this interview now? Your saved answers and current progress will remain available.")) return;
+    sessionEndedAt = Date.now();
+    if (recognition && listening) {
+        stopRecognition();
+    }
+
+    listening = false;
+    stopSpeaking();
+    stopFaceCoach("Facial coach stopped. Camera frames were not saved or uploaded.");
+    stopSpeaking();
+    stopFaceCoach("Facial coach stopped. Camera frames were not saved or uploaded.");
+
+    try {
+        if (sessionId) {
+            await api(`/api/sessions/${sessionId}/end`, {
+                method: "POST"
+            });
+        }
+    } catch (error) {
+        setStatus("Session ended with warning: " + error.message);
+    }
+    sessionClosed = true;
+
+    if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
+        mediaStream = null;
+    }
+
+    $("cameraPreview").srcObject = null;
+    $("cameraPreview").style.display = "none";
+    resetSetupPreview("Your camera preview will appear here when enabled.");
+    $("cameraMessage").style.display = "block";
+    $("cameraMessage").textContent = "Camera is off.";
+    setDeviceReadiness("cameraReadiness", "Permission needed", "pending");
+    setDeviceReadiness("microphoneReadiness", "Permission needed", "pending");
+    $("mediaStatus").textContent = "Session ended.";
+    $("currentSessionNotice").textContent = "Interview ended. Your saved answers and progress are still available.";
+    $("volumeFill").style.width = "0%";
+
+    stopAudioMeter();
+    $("listen").textContent = "🎙 Start listening";
+    $("volumeText").textContent = "Microphone not tested.";
+
+    enableSessionUI(false);
+    $("newInterviewStart").disabled = false;
+    $("analyzePerformance").disabled = !sessionId;
+    $("export").disabled = !sessionId;
+    $("startAIInterview").disabled = true;
+    $("nextAIQuestion").disabled = true;
+    $("repeatAIQuestion").disabled = true;
+    $("interviewProgress").textContent = "Interview ended";
+    $("aiQuestion").textContent = "Interview ended. Start another interview whenever you are ready.";
+    interviewStarted = false;
+    currentAIQuestion = null;
+    updateInterviewProgress();
+    refreshDeviceGate();
+    $("setupPanel").hidden = true;
+    $("liveWorkspace").hidden = false;
+    $("setupEnableMedia").disabled = true;
+    $("newInterviewStart").textContent = "Start another interview";
+    $("speakAIQuestion").disabled = true;
+    $("faceCoachOptIn").checked = false;
+    showCompletionScreen();
+
+    setStatus("Session ended");
+    loadWorkspaceData().catch(error=>setStatus("Session ended; dashboard refresh failed: "+error.message));
+};
+
+$("resume").onchange=async ev=>{
+    const file=ev.target.files[0];
+    if(!file||!sessionId)return;
+    resumeAnalysis=null;
+    updateSetupSummary();
+    $("analyzeResume").disabled=true;
+    $("resumeAnalysis").textContent="Upload in progress…";
+    setDeviceReadiness("resumeReadiness","Uploading…","pending");
+    const form=new FormData();
+    form.append("file",file);
+    try{
+        const d=await api(`/api/sessions/${sessionId}/resume`,{method:"POST",body:form});
+        $("resumeStatus").textContent=`Uploaded ${d.filename} · ${d.characters} readable characters. Analyze it to personalize questions.`;
+        $("analyzeResume").disabled=false;
+        $("resumeAnalysis").textContent="Resume uploaded. Select Analyze Resume to extract skills, projects, and experience.";
+        setDeviceReadiness("resumeReadiness","Uploaded","ready");
+        updateSetupSummary();
+        addHint("Resume uploaded. Analyze it to build a personalized interview.");
+    }catch(error){
+        $("resumeStatus").textContent=error.message;
+        $("resumeAnalysis").textContent="Resume could not be uploaded.";
+        setDeviceReadiness("resumeReadiness","Upload failed","error");
+        ev.target.value="";
+        updateSetupSummary();
+    }
+};
+async function analyzeResume(){
+    if(!sessionId)throw new Error("Start a session first.");
+    if(!$("resume").files.length)throw new Error("Upload a resume before choosing resume-based questions.");
+    $("analyzeResume").disabled=true;
+    $("analyzeResume").textContent="Analyzing…";
+    $("resumeStatus").textContent="Analyzing resume…";
+    try{
+        const result=await api(`/api/sessions/${sessionId}/resume/analyze`,{method:"POST"});
+        const profile=result.analysis;
+        resumeAnalysis=profile;
+        updateSetupSummary();
+        $("resumeAnalysis").textContent=JSON.stringify(profile,null,2);
+        $("resumeStatus").textContent=`Resume analyzed · ${profile.source==="ai"?"AI analysis":"local analysis"} · ${profile.technologies.length} technologies detected`;
+        $("technologyOptions").querySelectorAll("input").forEach(input=>{input.checked=profile.technologies.includes(input.value)});
+        addHint("Resume analysis complete. Your interview will focus on your resume and detected technologies.");
+        return profile;
+    }catch(error){
+        $("resumeStatus").textContent="Resume analysis failed: "+error.message;
+        throw error;
+    }finally{
+        $("analyzeResume").disabled=false;
+        $("analyzeResume").textContent="Analyze Resume";
+    }
+}
+$("analyzeResume").addEventListener("click",async()=>{
+    try{await analyzeResume();}
+    catch(error){$("interviewSetupStatus").textContent=error.message;}
+});
+$("export").onclick=()=>{if(sessionId)window.location.href=`/api/sessions/${sessionId}/export?format=pdf`};
+
+async function loadInterviewOptions(){
+    try{
+        const options=await api("/api/interview/options");
+        technologyCatalog=options.technologies;
+        $("jobRole").replaceChildren(...options.roles.map(role=>{
+            const option=document.createElement("option");option.value=role;option.textContent=role;return option;
+        }));
+        $("technologyOptions").replaceChildren(...technologyCatalog.map(technology=>{
+            const label=document.createElement("label");label.className="hintitem";
+            const input=document.createElement("input");input.type="checkbox";input.disabled=false;input.value=technology;
+            input.addEventListener("change",()=>{
+                if($("technologyOptions").querySelectorAll("input:checked").length>8){
+                    input.checked=false;alert("Select no more than 8 technologies.");
+                }
+            });
+            label.append(input,document.createTextNode(" "+technology));return label;
+        }));
+    }catch(error){$("resumeStatus").textContent="Could not load interview options: "+error.message;}
+}
+
+async function createFaceLandmarker(){
+    const version="0.10.20";
+    const cdn=`https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${version}`;
+    const vision=await import(`${cdn}/vision_bundle.mjs`);
+    const files=await vision.FilesetResolver.forVisionTasks(`${cdn}/wasm`);
+    const model="https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
+    try{
+        return await vision.FaceLandmarker.createFromOptions(files,{
+            baseOptions:{modelAssetPath:model,delegate:"GPU"},
+            runningMode:"VIDEO",
+            numFaces:1,
+            outputFaceBlendshapes:true
+        });
+    }catch(gpuError){
+        console.warn("GPU face analysis unavailable; retrying with CPU.",gpuError);
+        return vision.FaceLandmarker.createFromOptions(files,{
+            baseOptions:{modelAssetPath:model,delegate:"CPU"},
+            runningMode:"VIDEO",
+            numFaces:1,
+            outputFaceBlendshapes:true
+        });
+    }
+}
+
+async function startFaceCoach(){
+    if(!$("faceCoachOptIn").checked)return;
+    if(!$("cameraPreview").srcObject){
+        setFaceFeedback("Enable the camera to start on-device facial presentation tips.");
+        return;
+    }
+    setFaceFeedback("Loading the local face-analysis model…");
+    try{
+        if(!faceLandmarkerPromise){
+            faceLandmarkerPromise=createFaceLandmarker();
+        }
+        faceLandmarker=await faceLandmarkerPromise;
+        if(!$("faceCoachOptIn").checked||!$("cameraPreview").srcObject){
+            stopFaceCoach("Facial coach is off because the camera or consent option was disabled.");
+            return;
+        }
+        setFaceFeedback("Facial coach is active. Camera frames stay in this browser.");
+        lastFaceSampleAt=0;
+        if(faceCoachFrame!==null)return;
+        faceCoachFrame=requestAnimationFrame(runFaceCoachFrame);
+    }catch(error){
+        faceLandmarkerPromise=null;
+        setFaceFeedback("Facial coach could not load its model. Check your internet connection; interview audio and questions still work. "+error.message);
+    }
+}
+
+function stopFaceCoach(message){
+    if(faceCoachFrame!==null){
+        cancelAnimationFrame(faceCoachFrame);
+        faceCoachFrame=null;
+    }
+    if(faceLandmarker){
+        faceLandmarker.close();
+        faceLandmarker=null;
+        faceLandmarkerPromise=null;
+    }
+    if(message)setFaceFeedback(message);
+}
+
+function runFaceCoachFrame(timestamp){
+    faceCoachFrame=requestAnimationFrame(runFaceCoachFrame);
+    if(!$("faceCoachOptIn").checked||!faceLandmarker)return;
+    if(timestamp-lastFaceSampleAt<500)return;
+    lastFaceSampleAt=timestamp;
+    const video=$("cameraPreview");
+    if(video.readyState<2)return;
+    try{
+        const result=faceLandmarker.detectForVideo(video,timestamp);
+        const landmarks=result.faceLandmarks&&result.faceLandmarks[0];
+        if(!landmarks){
+            setFaceFeedback("Face not visible. Adjust the camera so your face is clearly in frame.");
+            facialCoachingNotes.add("Adjust camera framing so your face is visible.");
+            return;
+        }
+        const minX=Math.min(...landmarks.map(point=>point.x));
+        const maxX=Math.max(...landmarks.map(point=>point.x));
+        const centerX=(minX+maxX)/2;
+        if(centerX<0.32||centerX>0.68||(maxX-minX)<0.18){
+            setFaceFeedback("Move slightly closer or center your face in the camera frame.");
+            facialCoachingNotes.add("Keep your face centered and clearly framed.");
+            return;
+        }
+        const categories=result.faceBlendshapes&&result.faceBlendshapes[0]
+            ?result.faceBlendshapes[0].categories:[];
+        const shapeScore=name=>{
+            const shape=categories.find(item=>item.categoryName===name);
+            return shape?shape.score:0;
+        };
+        const smile=(shapeScore("mouthSmileLeft")+shapeScore("mouthSmileRight"))/2;
+        if(smile>0.35){
+            setFaceFeedback("A natural smile is visible. Keep your expression comfortable; no need to force it.");
+            facialCoachingNotes.add("Keep facial expressions natural and comfortable.");
+        }else if(
+            interviewStarted&&currentAIQuestion&&
+            Date.now()-questionShownAt>10000&&
+            faceCoachNudgedQuestion!==aiQuestionIndex
+        ){
+            setFaceFeedback("Tip: a natural smile during your greeting or closing can add warmth. A neutral expression is fine while explaining technical details.");
+            facialCoachingNotes.add("Consider a natural smile for greetings or closing; neutral expressions are fine during technical answers.");
+            faceCoachNudgedQuestion=aiQuestionIndex;
+        }else{
+            setFaceFeedback("Face is visible and centered. Keep a comfortable, natural expression.");
+        }
+    }catch(error){
+        console.error("Live facial feedback failed.",error);
+        stopFaceCoach("Live facial feedback stopped after an analysis error. Re-enable the option to try again.");
+    }
+}
+
+let questionShownAt=0;
+function speakAIQuestion(){
+    if(!currentAIQuestion)return;
+    if(!("speechSynthesis" in window)||!("SpeechSynthesisUtterance" in window)){
+        $("mediaStatus").textContent="Spoken questions are not supported in this browser. Read the question on screen.";
+        return;
+    }
+    window.speechSynthesis.cancel();
+    const utterance=new SpeechSynthesisUtterance(currentAIQuestion.question);
+    utterance.lang="en-IN";
+    utterance.rate=0.95;
+    utterance.onstart=()=>{$("stopSpeaking").disabled=false;setStatus("Reading question aloud")};
+    utterance.onend=()=>{$("stopSpeaking").disabled=true;setStatus("Session active")};
+    utterance.onerror=event=>{
+        if(event.error==="interrupted"||event.error==="canceled"){
+            $("stopSpeaking").disabled=true;
+            return;
+        }
+        $("mediaStatus").textContent="Could not read the question aloud: "+event.error+". The question remains visible.";
+        $("stopSpeaking").disabled=true;
+    };
+    window.speechSynthesis.speak(utterance);
+}
+
+function stopSpeaking(){
+    if("speechSynthesis" in window)window.speechSynthesis.cancel();
+    if($("stopSpeaking"))$("stopSpeaking").disabled=true;
+}
+
+function startInterviewSetup(){
+    if(!sessionId){alert("Start a session first.");return;}
+    if(!hasRequiredInterviewDevices()){
+        $("deviceCheck").textContent="Enable both your camera and microphone before choosing your interview questions.";
+        $("currentSessionNotice").textContent=$("deviceCheck").textContent;
+        $("setupEnableMedia").focus();
+        return;
+    }
+    if($("interviewSetup").open)return;
+    if(selectedInterviewMode){
+        launchInterview(selectedInterviewMode);
+        return;
+    }
+    $("interviewSetupStatus").textContent="";
+    $("interviewSetup").showModal();
+}
+
+function initializeCoachPanel() {
+    const panel = $("aiCoachPanel");
+    const handle = $("coachDragHandle");
+    let pointerOffsetX = 0;
+    let pointerOffsetY = 0;
+
+    handle.addEventListener("pointerdown", event => {
+        if (event.target.closest("button") || window.matchMedia("(max-width: 560px)").matches) return;
+        const panelRect = panel.getBoundingClientRect();
+        const stageRect = $("cameraStage").getBoundingClientRect();
+        pointerOffsetX = event.clientX - panelRect.left;
+        pointerOffsetY = event.clientY - panelRect.top;
+        panel.style.left = `${panelRect.left - stageRect.left}px`;
+        panel.style.top = `${panelRect.top - stageRect.top}px`;
+        panel.style.right = "auto";
+        panel.style.bottom = "auto";
+        handle.setPointerCapture(event.pointerId);
+    });
+
+    handle.addEventListener("pointermove", event => {
+        if (!handle.hasPointerCapture(event.pointerId)) return;
+        const stageRect = $("cameraStage").getBoundingClientRect();
+        const panelRect = panel.getBoundingClientRect();
+        const left = Math.max(0, Math.min(Math.max(0, stageRect.width - panelRect.width - 2), event.clientX - stageRect.left - pointerOffsetX));
+        const top = Math.max(0, Math.min(Math.max(0, stageRect.height - panelRect.height - 2), event.clientY - stageRect.top - pointerOffsetY));
+        panel.style.left = `${left}px`;
+        panel.style.top = `${top}px`;
+    });
+
+    handle.addEventListener("pointerup", event => {
+        if (handle.hasPointerCapture(event.pointerId)) handle.releasePointerCapture(event.pointerId);
+    });
+    handle.addEventListener("pointercancel", event => {
+        if (handle.hasPointerCapture(event.pointerId)) handle.releasePointerCapture(event.pointerId);
+    });
+
+    handle.addEventListener("click", event => {
+        const button = event.target.closest('[data-coach-action="toggle"]');
+        if (!button) return;
+        const collapsed = panel.classList.toggle("is-collapsed");
+        panel.querySelectorAll('[data-coach-action="toggle"]').forEach(toggle => {
+            toggle.setAttribute("aria-expanded", String(!collapsed));
+            toggle.setAttribute("aria-label", collapsed ? "Expand AI Coach" : "Minimize AI Coach");
+            toggle.textContent = toggle.classList.contains("coach-mobile-toggle")
+                ? (collapsed ? "Expand" : "Minimize")
+                : (collapsed ? "+" : "−");
+        });
+    });
+
+    handle.addEventListener("click", event => {
+        if (!event.target.closest('[data-coach-action="reset"]')) return;
+        panel.style.left = "";
+        panel.style.top = "";
+        panel.style.right = "";
+        panel.style.bottom = "";
+    });
+    handle.addEventListener("click", event => {
+        if (!event.target.closest('[data-coach-action="hide"]')) return;
+        panel.hidden = true;
+        $("showCoachPanel").hidden = false;
+        $("showCoachPanel").focus();
+    });
+    $("showCoachPanel").addEventListener("click", () => {
+        panel.hidden = false;
+        $("showCoachPanel").hidden = true;
+    });
+}
+initializeCoachPanel();
+
+async function launchInterview(mode){
+    if(!hasRequiredInterviewDevices()){
+        $("interviewSetup").close();
+        $("deviceCheck").textContent="Enable both your camera and microphone before your first question.";
+        $("currentSessionNotice").textContent=$("deviceCheck").textContent;
+        $("setupEnableMedia").focus();
+        refreshDeviceGate();
+        return;
+    }
+    selectedInterviewMode=mode;
+    $("resumeInterviewOption").disabled=true;
+    $("technologyInterviewOption").disabled=true;
+    $("interviewSetupStatus").textContent="Preparing your questions…";
+    try{
+        let technologies=[...$("technologyOptions").querySelectorAll("input:checked")].map(input=>input.value);
+        if(mode==="resume"){
+            const profile=resumeAnalysis||await analyzeResume();
+            technologies=profile.technologies.filter(technology=>technologyCatalog.includes(technology)).slice(0,8);
+            $("technologyOptions").querySelectorAll("input").forEach(input=>{input.checked=technologies.includes(input.value)});
+        }else if(!technologies.length&&$("interviewType").value==="technical"){
+            selectedInterviewMode="technology";
+            $("interviewSetup").close();
+            $("startAIInterview").textContent="✦ Start with selected technologies";
+            $("interviewProgress").textContent="Select technologies to continue";
+            $("interviewSetupStatus").textContent="";
+            $("newInterviewStart").disabled=false;
+            $("newInterviewStart").textContent="Start with selected technologies";
+            $("technologyOptions").scrollIntoView({behavior:"smooth",block:"center"});
+            return;
+        }
+        const interview=await api(`/api/sessions/${sessionId}/interview/start`,{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({
+                role:$("jobRole").value,
+                technologies,
+                experience_level:$("experienceLevel").value,
+                interview_type:$("interviewType").value,
+                difficulty:$("difficulty").value,
+                response_mode:$("responseMode").value
+            })
+        });
+        interviewQuestions=interview.questions;
+        aiQuestionIndex=-1;
+        currentAIQuestion=null;
+        interviewStarted=true;
+        interviewFinished=false;
+        questionRecords=[];
+        facialCoachingNotes.clear();
+        selectedInterviewMode=null;
+        $("interviewSetup").close();
+        $("setupPanel").hidden=true;
+        $("liveWorkspace").hidden=false;
+        $("interviewSetupSection").hidden=false;
+        $("completionScreen").hidden=true;
+        $("liveWorkspace").querySelector(".session-actions").hidden=false;
+        $("newInterviewStart").disabled=true;
+        $("currentSessionNotice").textContent="Interview in progress. Answer by voice or text; your progress updates after evaluation.";
+        updateStepIndicator(2);
+        $("startAIInterview").disabled=true;
+        $("interviewProgress").textContent=`Ready · ${interview.source==="ai"?"AI generated":"local question bank"}`;
+        $("nextAIQuestion").disabled=false;
+        $("nextAIQuestion").textContent="Next question";
+        $("listen").disabled=interview.response_mode==="text"||!hasLiveMicrophone();
+        $("deviceCheck").textContent=hasRequiredInterviewDevices()
+            ?"Camera and microphone are ready. Answer by voice or text."
+            :"A device disconnected. You can continue with typed answers and turn both devices back on.";
+        await showAIQuestion();
+        if(mediaStream&&mediaStream.getAudioTracks().some(track=>track.readyState==="live")&&!listening){
+            startListening();
+        }
+        if($("faceCoachOptIn").checked)startFaceCoach();
+        updateSetupSummary();
+    }catch(error){
+        $("interviewSetupStatus").textContent=error.message;
+    }finally{
+        $("resumeInterviewOption").disabled=false;
+        $("technologyInterviewOption").disabled=false;
+    }
+}
+
+$("startAIInterview").addEventListener("click",startInterviewSetup);
+$("resumeInterviewOption").addEventListener("click",()=>{
+    if(!$("resume").files.length&&!resumeAnalysis){
+        $("interviewSetup").close();
+        $("interviewSetupStatus").textContent="";
+        $("currentSessionNotice").textContent="Add a resume in Interview setup, then choose Start My Interview to select it.";
+        document.querySelector(".setup-resume").open=true;
+        $("resume").scrollIntoView({behavior:"smooth",block:"center"});
+        $("resume").focus();
+        return;
+    }
+    launchInterview("resume");
+});
+$("technologyInterviewOption").addEventListener("click",()=>launchInterview("technology"));
+$("cancelInterviewSetup").addEventListener("click",()=>$("interviewSetup").close());
+$("speakAIQuestion").addEventListener("click",speakAIQuestion);
+$("stopSpeaking").addEventListener("click",stopSpeaking);
+$("faceCoachOptIn").addEventListener("change",()=>{
+    if($("faceCoachOptIn").checked)startFaceCoach();
+    else stopFaceCoach("Facial feedback is off. Enable the setting and camera to use live presentation tips.");
+});
+
+function startAudioMeterForStream(stream) {
+    const audioTracks = stream.getAudioTracks();
+    if (!audioTracks.length) return;
+    stopAudioMeter();
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    audioContext.resume().catch(() => {});
+    const source = audioContext.createMediaStreamSource(new MediaStream(audioTracks));
+    analyser = audioContext.createAnalyser();
+    analyser.fftSize = 512;
+    source.connect(analyser);
+    const samples = new Uint8Array(analyser.fftSize);
+    function updateVolume() {
+        if (!analyser) return;
+        analyser.getByteTimeDomainData(samples);
+        let sum = 0;
+        for (const sample of samples) { const value = (sample - 128) / 128; sum += value * value; }
+        const percentage = Math.min(100, Math.round(Math.sqrt(sum / samples.length) * 300));
+        $("volumeFill").style.width = percentage + "%";
+        $("volumeText").textContent = percentage > 5 ? "Microphone is detecting sound." : "Speak a little louder to test the input.";
+        meterFrame = requestAnimationFrame(updateVolume);
+    }
+    updateVolume();
+}
+
+const mediaButton = document.getElementById("enableMedia");
+const disableMediaButton = document.getElementById("disableMedia");
+
+function stopAudioMeter() {
+    if (meterFrame !== null) {
+        cancelAnimationFrame(meterFrame);
+        meterFrame = null;
+    }
+
+    if (audioContext) {
+        audioContext.close().catch(() => {});
+        audioContext = null;
+    }
+
+    analyser = null;
+}
+
+mediaButton.addEventListener("click", async () => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        $("mediaStatus").textContent = "Camera and microphone need HTTPS or localhost. Open http://127.0.0.1:8000 in Chrome or Edge.";
+        $("deviceCheck").textContent = "Open the app on localhost or HTTPS in a supported browser to enable your camera and microphone.";
+        setDeviceReadiness("cameraReadiness", "Unavailable in this browser", "error");
+        setDeviceReadiness("microphoneReadiness", "Unavailable in this browser", "error");
+        refreshDeviceGate();
+        return;
+    }
+
+    mediaButton.disabled = true;
+    mediaButton.textContent = "Enabling devices…";
+    const acquiredTracks = [];
+    const errors = [];
+    let cameraError = null;
+    let microphoneError = null;
+    try {
+        // Request each device independently: one unavailable device must not block the other.
+        try {
+            const cam = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+            acquiredTracks.push(...cam.getVideoTracks());
+        } catch (e) { cameraError = e; errors.push("Camera: " + (e.name || e.message)); }
+        try {
+            const mic = await navigator.mediaDevices.getUserMedia({ video: false, audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+            acquiredTracks.push(...mic.getAudioTracks());
+        } catch (e) { microphoneError = e; errors.push("Microphone: " + (e.name || e.message)); }
+
+        if (mediaStream) mediaStream.getTracks().forEach(t => t.stop());
+        mediaStream = new MediaStream(acquiredTracks);
+        mediaStream.getVideoTracks().forEach(track => track.addEventListener("ended", () => {
+            setDeviceReadiness("cameraReadiness", "Disconnected", "error");
+            refreshDeviceGate();
+        }, {once: true}));
+        mediaStream.getAudioTracks().forEach(track => track.addEventListener("ended", () => {
+            setDeviceReadiness("microphoneReadiness", "Disconnected", "error");
+            refreshDeviceGate();
+        }, {once: true}));
+
+        const video = $("cameraPreview");
+        const setupVideo = $("setupCameraPreview");
+        if (mediaStream.getVideoTracks().length) {
+            video.srcObject = mediaStream;
+            video.style.display = "block";
+            $("cameraMessage").style.display = "none";
+            setupVideo.srcObject = mediaStream;
+            setupVideo.style.display = "block";
+            $("setupCameraMessage").style.display = "none";
+            setDeviceReadiness("cameraReadiness", "Ready", "ready");
+            await video.play().catch(() => {});
+            await setupVideo.play().catch(() => {});
+        } else {
+            video.srcObject = null;
+            video.style.display = "none";
+            $("cameraMessage").style.display = "block";
+            $("cameraMessage").textContent = "Camera unavailable. Check browser and operating-system camera permissions.";
+            resetSetupPreview("Camera unavailable. Check browser and operating-system camera permissions.");
+            setDeviceReadiness("cameraReadiness", deviceFailure(cameraError), "error");
+        }
+
+        if (mediaStream.getAudioTracks().length) {
+            startAudioMeterForStream(mediaStream);
+            $("volumeText").textContent = "Microphone is on. Speak to test the input level.";
+            setDeviceReadiness("microphoneReadiness", "Ready", "ready");
+        } else {
+            stopAudioMeter();
+            $("volumeText").textContent = "Microphone unavailable. Check browser and operating-system microphone permissions.";
+            setDeviceReadiness("microphoneReadiness", deviceFailure(microphoneError), "error");
+        }
+
+        disableMediaButton.disabled = acquiredTracks.length === 0;
+        $("setupDisableMedia").disabled = acquiredTracks.length === 0;
+        $("listen").disabled = mediaStream.getAudioTracks().length === 0;
+        $("mediaStatus").textContent = errors.length
+            ? errors.join(" · ") + ". Both camera and microphone must be ready before starting."
+            : mediaStream.getAudioTracks().length
+                ? "Microphone input is ready. Click Start listening to display speech-to-text."
+                : "Camera is ready. Enable the microphone before starting.";
+        setStatus(mediaStream.getAudioTracks().length ? "Microphone ready" : "Devices checked");
+        if($("faceCoachOptIn").checked&&mediaStream.getVideoTracks().length)startFaceCoach();
+        if(interviewStarted&&mediaStream.getAudioTracks().length&&!listening)startListening();
+    } finally {
+        mediaButton.disabled = false;
+        mediaButton.textContent = "Enable camera & microphone";
+        refreshDeviceGate();
+    }
+});
+
+disableMediaButton.addEventListener("click", () => {
+    stopRecognition();
+    if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
+        mediaStream = null;
+    }
+
+    const video = document.getElementById("cameraPreview");
+    video.srcObject = null;
+    video.style.display = "none";
+    resetSetupPreview("Your camera preview will appear here when enabled.");
+
+    document.getElementById("cameraMessage").style.display = "block";
+    document.getElementById("cameraMessage").textContent =
+        "Camera is off.";
+
+    document.getElementById("mediaStatus").textContent =
+        "Camera and microphone are off.";
+    setDeviceReadiness("cameraReadiness", "Permission needed", "pending");
+    setDeviceReadiness("microphoneReadiness", "Permission needed", "pending");
+
+    document.getElementById("volumeText").textContent =
+        "Microphone not tested.";
+
+    document.getElementById("volumeFill").style.width = "0%";
+
+    stopAudioMeter();
+    $("setupDisableMedia").disabled = true;
+    $("listen").disabled = true;
+    $("listen").textContent = "🎙 Start listening";
+    stopFaceCoach("Camera and facial feedback are off.");
+    if(interviewStarted&&currentAIQuestion)$("mediaStatus").textContent="Devices are off. Enable them to continue voice answers; typing still works.";
+    refreshDeviceGate();
+});
+
+async function showAIQuestion() {
+    const button=$("nextAIQuestion");
+    if(currentAIQuestion){
+        button.disabled=true;
+        button.textContent="Evaluating answer…";
+        const answer=$("answerInput").value.trim();
+        try{
+            const result=await api(`/api/sessions/${sessionId}/interview/answer`,{
+                method:"POST",headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({question_index:aiQuestionIndex,category:currentAIQuestion.category,question:currentAIQuestion.question,answer})
+            });
+            questionRecords[aiQuestionIndex]={question:currentAIQuestion.question,category:currentAIQuestion.category,answer,feedback:result.feedback};
+            updateInterviewProgress();
+            const feedback=result.feedback;
+            $("answerFeedback").textContent=`Score ${feedback.score}/5 · ${feedback.summary}\n\nStrengths: ${feedback.strengths.join("; ")||"Keep building specific examples."}\n\nImprovements: ${feedback.improvements.join("; ")||"Continue with this clear approach."}`;
+            $("hintMode").textContent=feedback.source==="ai"?"AI POWERED":"PRACTICE COACH";
+        }catch(error){
+            $("answerFeedback").textContent="Answer evaluation failed: "+error.message;
+            button.disabled=false;
+            button.textContent="Submit answer";
+            return;
+        }
+    }
+    if(aiQuestionIndex+1>=interviewQuestions.length){
+        interviewFinished=true;
+        sessionEndedAt=Date.now();
+        currentAIQuestion=null;
+        $("aiQuestion").textContent="Interview complete. Generating your performance report…";
+        $("interviewProgress").textContent=`Complete · ${interviewQuestions.length} questions`;
+        updateInterviewProgress();
+        $("answerInput").disabled=true;
+        $("repeatAIQuestion").disabled=true;
+        $("speakAIQuestion").disabled=true;
+        stopSpeaking();
+        button.disabled=true;
+        button.textContent="Interview complete";
+        try{
+            await api(`/api/sessions/${sessionId}/end`,{method:"POST"});
+        }catch(error){
+            setStatus("Interview complete; session close could not be saved: "+error.message);
+        }
+        sessionClosed=true;
+        showCompletionScreen();
+        stopInterviewDevices("Interview complete. Camera and microphone have been turned off.");
+        await generatePerformanceReport();
+        return;
+    }
+    aiQuestionIndex++;
+    currentAIQuestion=interviewQuestions[aiQuestionIndex];
+    interviewStarted=true;
+    $("getHint").disabled=false;
+    displayedInterimText="";
+    $("aiQuestion").textContent=currentAIQuestion.question;
+    $("question").value=currentAIQuestion.question;
+    $("answerInput").value="";
+    $("answerInput").disabled=false;
+    questionShownAt=Date.now();
+    faceCoachNudgedQuestion=-1;
+    $("interviewProgress").textContent=`Question ${aiQuestionIndex+1} of ${interviewQuestions.length}`;
+    updateInterviewProgress();
+    $("answerFeedback").textContent="Answer by speaking or typing, then submit for feedback.";
+    $("repeatAIQuestion").disabled=false;
+    $("speakAIQuestion").disabled=false;
+    speakAIQuestion();
+    button.disabled=false;
+    button.textContent=aiQuestionIndex===interviewQuestions.length-1?"Submit final answer":"Submit answer";
+    try{
+        const hint=await api(`/api/sessions/${sessionId}/hint`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:currentAIQuestion.question})});
+        $("latestHint").textContent=hint.hint;
+        $("coachSpeakingMessage").textContent=hint.hint;
+        $("hintMode").textContent=hint.type==="ai"?"AI POWERED":"PRACTICE COACH";
+    }catch(error){$("latestHint").textContent="Could not generate an answer hint: "+error.message;}
+}
+$("nextAIQuestion").addEventListener("click", showAIQuestion);
+$("repeatAIQuestion").addEventListener("click", () => {
+    if (currentAIQuestion) {
+        $("aiQuestion").textContent = currentAIQuestion.question;
+        speakAIQuestion();
+    }
+});
+$("getHint").addEventListener("click", async () => {
+    if (!sessionId||!currentAIQuestion||interviewFinished) return;
+    const question = currentAIQuestion.question;
+    $("getHint").disabled = true;
+    try {
+        const result = await api(`/api/sessions/${sessionId}/hint`, {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({question})
+        });
+        $("latestHint").textContent = result.hint;
+        $("coachSpeakingMessage").textContent = result.hint;
+        $("hintMode").textContent = result.type === "ai" ? "AI POWERED" : "PRACTICE COACH";
+    } catch (e) { $("latestHint").textContent = "Could not generate a hint: " + e.message; }
+    finally { $("getHint").disabled = !sessionId||!currentAIQuestion||interviewFinished; }
+});
+
+async function generatePerformanceReport() {
+
+    if (!sessionId) {
+        throw new Error("Start an interview session first.");
+    }
+
+    const showingCompletion = !$("completionScreen").hidden;
+    const hasVoiceTranscript=Boolean(fullText.trim());
+    const reportText=hasVoiceTranscript
+        ?fullText
+        :questionRecords.map(record=>record.answer).filter(answer=>answer&&answer.trim()).join("\n");
+    if (!reportText.trim()) {
+        $("performanceFeedback").replaceChildren();
+        const item=document.createElement("li");
+        item.textContent="No spoken or typed answers were captured. Answer at least one question before generating a report.";
+        $("performanceFeedback").appendChild(item);
+        if(interviewFinished)$("aiQuestion").textContent="Interview complete. Add at least one answer to generate your report.";
+        if(showingCompletion)updateCompletionScreen();
+        return;
+    }
+
+    const elapsedSeconds = Math.max(
+        1,
+        Math.floor(
+            ((sessionEndedAt || Date.now()) - sessionStartedAt) / 1000
+        )
+    );
+
+    const button =
+        document.getElementById("analyzePerformance");
+
+    button.disabled = true;
+    button.textContent = "Analyzing...";
+    $("completionReportButton").disabled = true;
+
+    try {
+        const report = await api(
+            `/api/sessions/${sessionId}/performance`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    transcript: reportText,
+                    elapsed_seconds: elapsedSeconds,
+                    transcript_is_voice: hasVoiceTranscript
+                })
+            }
+        );
+
+        document.getElementById("perfWpm").textContent =
+            hasVoiceTranscript ? report.speaking_rate : "—";
+
+        document.getElementById("perfFiller").textContent =
+            hasVoiceTranscript ? report.filler_percentage + "%" : "—";
+
+        document.getElementById("perfFillerCount").textContent =
+            hasVoiceTranscript ? report.filler_count + " detected" : "Voice not captured";
+
+        document.getElementById("perfStar").textContent =
+            report.star_score + "/4";
+        document.getElementById("perfAnswerScore").textContent =
+            report.average_answer_score === undefined ? "—" : report.average_answer_score + "/5";
+
+        document.getElementById("perfWords").textContent = report.word_count;
+
+        const feedbackList =
+            document.getElementById("performanceFeedback");
+
+        feedbackList.replaceChildren();
+
+        report.feedback.forEach(message => {
+            const item = document.createElement("li");
+            item.textContent = message;
+            feedbackList.appendChild(item);
+        });
+        if(facialCoachingNotes.size){
+            const heading=document.createElement("li");
+            heading.textContent="Facial presentation tips (not part of your score):";
+            feedbackList.appendChild(heading);
+            facialCoachingNotes.forEach(message=>{
+                const item=document.createElement("li");
+                item.textContent=message;
+                feedbackList.appendChild(item);
+            });
+        }
+        if(interviewFinished)$("aiQuestion").textContent="Interview complete. Your performance report is ready below.";
+
+        addHint("Performance report generated and saved.");
+        if(interviewFinished){
+            stopRecognition();
+            stopFaceCoach("Interview complete. Camera and microphone have been turned off.");
+            if(mediaStream){mediaStream.getTracks().forEach(track=>track.stop());mediaStream=null;}
+            $("cameraPreview").srcObject=null;$("cameraPreview").style.display="none";
+            resetSetupPreview("Your camera preview will appear here when enabled.");
+            $("cameraMessage").style.display="block";$("cameraMessage").textContent="Interview complete. Devices are off.";
+            $("volumeFill").style.width="0%";$("volumeText").textContent="Microphone not active.";
+            $("mediaStatus").textContent="Interview complete. Camera and microphone have been turned off.";
+            stopAudioMeter();
+            $("listen").disabled=true;$("enableMedia").disabled=true;$("disableMedia").disabled=true;
+            $("faceCoachOptIn").disabled=true;$("stop").disabled=true;
+            $("newInterviewStart").disabled=false;
+            $("newInterviewStart").textContent="Start another interview";
+            $("setupPanel").hidden=true;
+            $("liveWorkspace").hidden=false;
+            $("currentSessionNotice").textContent="Interview complete. Start another practice session or review your report.";
+        }
+        updateCompletionScreen();
+        await loadWorkspaceData();
+        if(showingCompletion)updateStepIndicator(3);
+        if(localStorage.getItem("interviewproai.notifications")!=="false")setStatus("Report saved successfully");
+        if(showingCompletion){
+            showPage("start");
+        }else{
+            showPage("reports");
+            await openReport(sessionId,"reportDetail");
+        }
+
+    } catch (error) {
+        $("performanceFeedback").replaceChildren();
+        const item=document.createElement("li");
+        item.textContent="Performance analysis failed: "+error.message;
+        $("performanceFeedback").appendChild(item);
+        if(interviewFinished)$("aiQuestion").textContent="Interview complete. Report generation failed; see the feedback below.";
+        if(showingCompletion){
+            updateCompletionScreen();
+            showPage("start");
+        }
+    } finally {
+        button.disabled = interviewFinished;
+        button.textContent = "Generate Final Interview Report";
+        if(showingCompletion)updateCompletionScreen();
+    }
+}
+const reportButton=document.getElementById("analyzePerformance");
+reportButton.addEventListener("click", generatePerformanceReport);
+
+window.addEventListener("beforeunload", () => {
+    if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
+    }
+
+    stopAudioMeter();
+});
+
+loadInterviewOptions()
+    .then(loadWorkspaceData)
+    .then(()=>{
+        showPage(location.hash.slice(1)||"dashboard",false);
+        document.body.classList.add("authenticated");
+    })
+    .catch(error=>{
+        if(error.message==="Authentication required")return;
+        $("authLoading").textContent="Unable to verify or load your InterviewProAI workspace. Refresh the page to try again.";
+    });
+fetch("/api/health").then(r=>r.json()).then(d=>setStatus(d.ai_enabled?"Ready · AI enabled":"Ready · Local hints")).catch(()=>setStatus("Server connection issue"));
+</script>
+</body></html>
